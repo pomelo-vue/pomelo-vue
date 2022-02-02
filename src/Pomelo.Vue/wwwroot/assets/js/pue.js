@@ -15761,6 +15761,9 @@ var Pomelo = (function (exports, options) {
             return fetch(url);
         },
         onNotFound: function (url, options) {
+            if (url.indexOf('/404') == 0) {
+                throw 'No not-found template found';
+            }
             if (options) {
                 return Redirect('/404?' + _serializeOptionsToUrl(options));
             } else {
@@ -16160,8 +16163,9 @@ var Pomelo = (function (exports, options) {
         route = Pomelo.MatchRoute();
         if (route == null) {
             try {
-                _options.onNotFound(url);
+                _options.onNotFound(window.location.pathname + window.location.search);
             } catch (ex) {
+                console.error(ex);
                 console.error("No available route found.");
                 return Promise.reject("No available route found.");
             }
