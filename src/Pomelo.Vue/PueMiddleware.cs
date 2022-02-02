@@ -11,7 +11,7 @@
         public PueMiddleware(RequestDelegate next)
         {
             _next = next;
-            _main = $"<html><head><script src=\"{PuePath}\"></script></head></html>";
+            _main = $"<html><head><script>var PueOptions = {{ mobile() {{ return false; }} }};</script><script src=\"{PuePath}\"></script></head></html>";
         }
 
         public async Task Invoke(HttpContext httpContext)
