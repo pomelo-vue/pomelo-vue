@@ -1,0 +1,23 @@
+[
+  {
+    "group": "Essentials",
+    "pages": [
+      {
+        "id": "installation",
+        "title": "Installation"
+      },
+      {
+        "id": "routing",
+        "title": "Routing"
+      },
+      {
+        "id": "page",
+        "title": "Page"
+      },
+      {
+        "id": "component",
+        "title": "Component"
+      }
+    ]
+  }
+]
