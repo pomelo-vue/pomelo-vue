@@ -2,11 +2,11 @@
 
 ## What is Pue.js?
 
-Pue = Pomelo + Vue. Pomelo handled routing, layouts, component, pages, And Vue is rendering components, control elements.
+Pue = Pomelo + Vue. Pomelo handled routing, layouts, component, pages. And Vue is rendering components, control elements.
 
 Pue is a redistributed version of Vue.js which doesn't depend on web pack, or other tool chain. Pue.js can run with browser directly.
 
-You can define script-template separated pages, components, layouts with Pue.js
+You can define script-template separated pages, components, layouts with Pue.js.
 
 ## Getting Started
 
