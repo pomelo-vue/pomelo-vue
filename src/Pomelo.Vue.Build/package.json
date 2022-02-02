@@ -1,0 +1,22 @@
+{
+  "name": "pomelo-vue",
+  "version": "0.9.0",
+  "description": "Front-end MVC library",
+  "main": "pue.js",
+  "bin": {
+    "pomelo-vue": "bin/pue.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yukozh/pomelo-vue.git"
+  },
+  "author": "Yuko Zheng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yukozh/pomelo-vue/issues"
+  },
+  "homepage": "https://github.com/yukozh/pomelo-vue#readme"
+}

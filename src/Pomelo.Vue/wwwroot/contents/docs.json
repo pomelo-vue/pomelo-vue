@@ -3,6 +3,10 @@
     "group": "Essentials",
     "pages": [
       {
+        "id": "introduction",
+        "title": "Introduction"
+      },
+      {
         "id": "installation",
         "title": "Installation"
       },
@@ -17,6 +21,18 @@
       {
         "id": "component",
         "title": "Component"
+      },
+      {
+        "id": "layout",
+        "title": "Layout"
+      },
+      {
+        "id": "external-modules",
+        "title": "External Modules"
+      },
+      {
+        "id": "not-found-handling",
+        "title": "Not Found Handling"
       }
     ]
   }

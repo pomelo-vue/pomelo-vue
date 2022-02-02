@@ -1,14 +1,19 @@
 ﻿# Installation
 
-Add `vue.js` and `pomelo.js` into html header.
+Add `pue.js` into html header.
 
 ```
 <html>
 	<head>
-		<script src="/js/vue.js"></script>
-		<script src="/js/pomelo.js"></script>
+		<script src="https://unpkg.com/pomelo-vue@0"></script>
 	</head>
 </html>
+```
+
+You can also use the compressed version: 
+
+```
+https://unpkg.com/pomelo-vue@0/pue.min.js
 ```
 
 Make sure your host always return the above page when the requested resource is not existing. 
@@ -16,7 +21,7 @@ Make sure your host always return the above page when the requested resource is 
 For ASP.NET Core, you can use the middleware as below:
 
 ```
-namespace Pomelo.Vue.Template
+namespace Pomelo.Vue
 {
     public class PueMiddleware
     {
@@ -24,13 +29,12 @@ namespace Pomelo.Vue.Template
 
         private readonly string _main;
 
-        internal static string VuePath = "";
-        internal static string PomeloPath = "";
+        internal static string PuePath = "";
 
         public PueMiddleware(RequestDelegate next)
         {
             _next = next;
-            _main = $"<html><head><script src=\"{VuePath}\"></script><script src=\"{PomeloPath}\"></script></head></html>";
+            _main = $"<html><head><script src=\"{PuePath}\"></script></head></html>";
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -70,10 +74,9 @@ namespace Pomelo.Vue.Template
 
     public static class PueMiddlewareExtensions
     {
-        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string vuePath = "/assets/js/vue.js", string pomeloPath = "/assets/js/pomelo.js")
+        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pue.js")
         {
-            PueMiddleware.VuePath = vuePath;
-            PueMiddleware.PomeloPath = pomeloPath;
+            PueMiddleware.PuePath = puePath;
             return builder.UseMiddleware<PueMiddleware>();
         }
     }

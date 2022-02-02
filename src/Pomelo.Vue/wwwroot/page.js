@@ -14,7 +14,7 @@
         var _result;
 
         if (!this.id) {
-            this.id = 'installation';
+            this.id = 'introduction';
         }
 
         return fetch('/contents/' + this.id + '.md').then(function (result) {
