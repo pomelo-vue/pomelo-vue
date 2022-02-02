@@ -640,4 +640,4 @@ var Pomelo = (function (exports, options) {
     exports.ForceUpdate = ForceUpdate;
 
     return exports;
-})({}, PueOptions || {});
+})({}, window.PueOptions || {});
