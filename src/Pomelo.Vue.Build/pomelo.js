@@ -1,6 +1,7 @@
 var Pomelo = (function (exports, options) {
     // Options
     var _options = {
+        resolveModulesParallelly: true,
         mobile: function () {
             return window.innerWidth <= 768;
         },
@@ -118,15 +119,29 @@ var Pomelo = (function (exports, options) {
             return Promise.resolve();
         }
 
-        var promises = [];
-        for (var i = 0; i < modules.length; ++i) {
-            promises.push(LoadScript(modules[i]));
-        }
+        if (_options.resolveModulesParallelly) {
+            var promises = [];
+            for (var i = 0; i < modules.length; ++i) {
+                promises.push(LoadScript(modules[i]));
+            }
 
-        return Promise.all(promises);
+            return Promise.all(promises);
+        } else {
+            var promise = Promise.resolve(null);
+            var makeFunc = function (module) {
+                return function (result) {
+                    return LoadScript(module);
+                };
+            };
+            for (var i = 0; i < modules.length; ++i) {
+                var m = modules[i];
+                promise = promise.then(makeFunc(m));
+            }
+            return promise;
+        }
     }
 
-    function _buildComponent(url, params, mobile, parent) {
+    function _buildApp(url, params, mobile, parent) {
         var componentObject;
         return _httpGet(url + '.js')
             .then(function (js) {
@@ -176,16 +191,24 @@ var Pomelo = (function (exports, options) {
                 };
 
                 // Create instance
-                var ret = Vue.createApp(component);
-                var components = component.components || [];
-                var p = _loadComponents(components, ret);
-                var originalMountFunc = ret.mount;
-                ret.mount = function (el) {
-                    ret.proxy = originalMountFunc(el);
-                    return ret.proxy;
-                }
-                return p.then(function () {
-                    return Promise.resolve(ret);
+                return _resolveModules(component.modules).then(function () {
+                    var components = component.components || [];
+                    return _loadComponents(components).then(function (components) {
+                        var ret = Vue.createApp(component);
+
+                        for (var i = 0; i < components.length; ++i) {
+                            var com = components[i];
+                            ret.component(com.name, com.options);
+                        }
+
+                        var originalMountFunc = ret.mount || function () { };
+                        ret.mount = function (el) {
+                            ret.proxy = originalMountFunc(el);
+                            return ret.proxy;
+                        }
+
+                        return Promise.resolve(ret);
+                    });
                 });
             });
     };
@@ -233,7 +256,7 @@ var Pomelo = (function (exports, options) {
                     var self = this;
 
                     _parseQueryString(params);
-                    return _buildComponent(url, params, mobile, currentProxy).then(function (result) {
+                    return _buildApp(url, params, mobile, currentProxy).then(function (result) {
                         self.active = result;
                         self.active = self.active.mount(self.selector);
                         return Promise.resolve(self.active);
@@ -277,10 +300,17 @@ var Pomelo = (function (exports, options) {
             }
             _attachContainer(instance);
         };
-        var app = Vue.createApp(options || {});
-        return _loadComponents(options.components || [], app).then(function () {
-            _root = app.mount(el);
-            _root.$.proxy = _root;
+        return _resolveModules(options.modules).then(function () {
+            return _loadComponents(options.components || []).then(function (components) {
+                var app = Vue.createApp(options || {});
+                for (var i = 0; i < components.length; ++i) {
+                    var com = components[i];
+                    app.component(com.name, com.options);
+                }
+
+                _root = app.mount(el);
+                _root.$.proxy = _root;
+            });
         });
     }
 
@@ -461,10 +491,11 @@ var Pomelo = (function (exports, options) {
 
                     return _httpGet(layout + ".js");
                 }).then(function (js) {
-                    var modules = null;
+                    var _options = null;
                     var Layout = function (options) {
-                        modules = options.modules;
-
+                        _options = options;
+                    };
+                    var LayoutNext = function (options) {
                         // Hook data()
                         if (!options.data) {
                             options.data = function () {
@@ -501,19 +532,28 @@ var Pomelo = (function (exports, options) {
                     };
 
                     eval(js);
-                    return _resolveModules(modules);
+                    return _resolveModules(_options.modules).then(function () {
+                        LayoutNext(_options);
+                        return Promise.resolve();
+                    });
                 });
             } else {
                 return _applyLayoutHtml(route.view).then((appId) => {
-                    var modules = null;
+                    var _options = null;
                     var components = null;
                     var Page = function (options) {
+                        _options = option;
+                    };
+                    var PageNext = function (options) {
                         modules = options.modules;
                         components = options.components || [];
                         Root(options, '#' + appId, layout);
                     };
                     eval(_def);
-                    return _resolveModules(modules);
+                    return _resolveModules(_options.modules).then(function () {
+                        PageNext(_options);
+                        return Promise.resolve();
+                    });
                 });
             }
         }).then(function () {
@@ -602,35 +642,45 @@ var Pomelo = (function (exports, options) {
 
     function LoadScript(url) {
         if (_httpCached(url)) {
+            eval(_cache[url]);
             return Promise.resolve();
         }
 
         return _httpGet(url).then(function (js) {
             eval(js);
+            _cache[url] = js;
             return Promise.resolve();
-        })
+        }).catch(err => {
+            console.error('Load module ' + url + ' failed.');
+            console.error(err);
+        });
     }
 
-    function _loadComponents(components, app) {
+    function _loadComponents(components) {
+        var ret = [];
         return Promise.all(components.map(function (c) {
-            var html;
+            var _html;
+            var _options;
+            var _name;
             return _httpGet(c + ".html").then(function (comHtml) {
-                html = comHtml;
+                _html = comHtml;
                 return _httpGet(c + ".js");
             }).then(function (comJs) {
-                var _options;
-                var _name;
                 var Component = function (name, options) {
                     _options = options;
                     _name = name;
                 };
                 eval(comJs);
-                _options.template = html;
+                _options.template = _html;
                 var p = _resolveModules(_options.modules);
-                app.component(_name, _options);
                 return p;
-            });
-        }));
+            }).then(function () {
+                ret.push({ name: _name, options: _options });
+                return Promise.resolve();
+            })
+        })).then(function () {
+            return ret;
+        });
     }
 
     exports.root = root;
