@@ -182,7 +182,9 @@ var Pomelo = (function (exports, options) {
                 }
 
                 // Hook data()
-                var originalDataFunc = component.data;
+                var originalDataFunc = component.data || function () {
+                    return {};
+                };
                 component.data = function () {
                     var data = originalDataFunc();
                     _combineObject(params, data);
@@ -542,7 +544,7 @@ var Pomelo = (function (exports, options) {
                     var _options = null;
                     var components = null;
                     var Page = function (options) {
-                        _options = option;
+                        _options = options;
                     };
                     var PageNext = function (options) {
                         modules = options.modules;
