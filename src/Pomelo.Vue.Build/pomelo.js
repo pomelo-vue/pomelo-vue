@@ -176,8 +176,8 @@ var Pomelo = (function (exports, options) {
                         setup(props, context);
                     }
                     var instance = Vue.getCurrentInstance();
-                    instance.$parent = parent || Pomelo._root;
-                    instance.$root = Pomelo._root || parent;
+                    instance.$parent = parent || Pomelo.root();
+                    instance.$root = Pomelo.root() || parent;
                     _attachContainer(instance);
                 }
 
@@ -295,8 +295,9 @@ var Pomelo = (function (exports, options) {
         options.setup = function () {
             originalSetup();
             var instance = Vue.getCurrentInstance();
-            instance.$parent = parent || Pomelo._root;
-            instance.$root = Pomelo._root || parent;
+            instance.$parent = parent || Pomelo.root();
+            instance.$root = Pomelo.root() || parent;
+            instance.$onUpdating = options.onUpdating;
             if (layout) {
                 instance.$layout = layout;
             }
@@ -476,7 +477,14 @@ var Pomelo = (function (exports, options) {
                     }
 
                     Pomelo.root().$containers[0].open(route.view, params);
-                    return Promise.resolve();
+                    var promise = Promise.resolve();
+                    if (typeof Pomelo.root().$.$onUpdating == 'function') {
+                        var result = Pomelo.root().$.$onUpdating.call(Pomelo.root());
+                        if (result instanceof Promise) {
+                            promise = result;
+                        }
+                    }
+                    return promise;
                 }
 
                 Pomelo.root().$.appContext.app.unmount();
@@ -527,7 +535,7 @@ var Pomelo = (function (exports, options) {
                         options.mounted = function () {
                             var container = this.$container('#' + containerId);
                             container.open(route.view, params);
-                            return mountedFunc();
+                            return mountedFunc.call(this);
                         };
 
                         Root(options, '#' + appId, layout);
