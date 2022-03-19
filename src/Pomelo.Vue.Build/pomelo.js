@@ -178,6 +178,7 @@ var Pomelo = (function (exports, options) {
                     var instance = Vue.getCurrentInstance();
                     instance.$parent = parent || Pomelo.root();
                     instance.$root = Pomelo.root() || parent;
+                    instance.$view = url;
                     _attachContainer(instance);
                 }
 
@@ -300,6 +301,7 @@ var Pomelo = (function (exports, options) {
             instance.$onUpdating = options.onUpdating;
             if (layout) {
                 instance.$layout = layout;
+                instance.$view = layout;
             }
             _attachContainer(instance);
         };
@@ -383,7 +385,7 @@ var Pomelo = (function (exports, options) {
                 } else {
                     params.push(k);
                 }
-                rule = _replace(rule, param.value, '(' + regex + ')');
+                rule = _replace(rule, param.value, regex);
             }
 
             var parsedReg = new RegExp('^' + rule + '$');
