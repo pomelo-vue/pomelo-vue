@@ -409,6 +409,10 @@ var Pomelo = (function (exports, options) {
     }
 
     function _fillObjectField(param, value, dest) {
+        if (!dest) {
+            return;
+        }
+
         var splited = param.split('.');
         for (var i = 0; i < splited.length - 1; ++i) {
             if (!dest[splited[i]]) {
