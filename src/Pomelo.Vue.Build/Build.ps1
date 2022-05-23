@@ -31,10 +31,10 @@ Set-Content -Path $original -Value $vueJsContent
 uglifyjs $original -m -o $min
 Write-Host 'Generated ' $original
 Write-Host 'Generated ' $min
-Copy-Item -Path (Join-Path $currentFolder 'package.json') -Destination (Join-Path $outputDir 'package.json')
+Copy-Item -Path (Join-Path $currentFolder 'package.json') -Destination (Join-Path $outputDir 'package.json') -Force
 
 Write-Host 'Copying scripts to sample project...'
-Copy-Item -Path $original -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.js')
-Copy-Item -Path $min  -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.min.js')
+Copy-Item -Path $original -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.js') -Force
+Copy-Item -Path $min  -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.min.js') -Force
 
 Write-Host 'Finished'

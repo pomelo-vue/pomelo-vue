@@ -16090,6 +16090,7 @@ var Pomelo = (function (exports, options) {
     }
 
     function ForceUpdate(proxy = Pomelo.root()) {
+        if (!proxy) return;
         proxy.$forceUpdate();
         if (proxy.$containers) {
             for (var i = 0; i < proxy.$containers.length; ++i) {
@@ -16171,6 +16172,10 @@ var Pomelo = (function (exports, options) {
     }
 
     function _fillObjectField(param, value, dest) {
+        if (!dest) {
+            return;
+        }
+
         var splited = param.split('.');
         for (var i = 0; i < splited.length - 1; ++i) {
             if (!dest[splited[i]]) {
@@ -16416,12 +16421,16 @@ var Pomelo = (function (exports, options) {
 
     function LoadScript(url) {
         if (_httpCached(url)) {
-            eval(_cache[url]);
+            with (window) {
+                eval(_cache[url]);
+            }
             return Promise.resolve();
         }
 
         return _httpGet(url).then(function (js) {
-            eval(js);
+            with (window) {
+                eval(js);
+            }
             _cache[url] = js;
             return Promise.resolve();
         }).catch(err => {
