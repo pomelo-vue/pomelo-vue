@@ -474,7 +474,7 @@ var Pomelo = (function (exports, options) {
             def = eval(def);
             return _resolveModules(modules);
         }).then(function () {
-            if (Pomelo.root()) {
+            if (Pomelo.root() && Pomelo.root().$layout) {
                 if (Pomelo.root().$layout === layout) {
                     _parseQueryString(params);
                     var fields = Object.getOwnPropertyNames(params);
