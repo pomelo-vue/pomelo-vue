@@ -16,6 +16,13 @@ You can also use the compressed version:
 https://unpkg.com/pomelo-vue/pomelo.vue.min.js
 ```
 
+There are 2 development versions for pomelo.vue.js which can show more debug informations in console: 
+
+```
+https://unpkg.com/pomelo-vue/pomelo.vue.dev.js
+https://unpkg.com/pomelo-vue/pomelo.vue.dev.min.js
+```
+
 Make sure your host always return the above page when the requested resource is not existing. 
 
 For ASP.NET Core, you can use the middleware as below:

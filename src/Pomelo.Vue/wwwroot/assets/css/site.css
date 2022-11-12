@@ -49,7 +49,7 @@
         pre code .hljs-apache pre code .hljs-cbracket,
         pre code .hljs-tex pre code .hljs-command,
         pre code .hljs-prompt {
-            color: #42b983;
+            color: #ffad07;
         }
 
         pre code .hljs-function pre code .hljs-keyword,
@@ -309,7 +309,7 @@ input.button {
     a.button.white,
     input.button.white {
         background-color: #fff;
-        color: #42b983;
+        color: #ffad07;
     }
 
     a.button.gray,
@@ -392,7 +392,7 @@ input.button {
     }
 
         #nav .nav-dropdown a:hover {
-            color: #42b983;
+            color: #ffad07;
         }
 
 #nav .arrow {
@@ -524,7 +524,7 @@ i.rotating-clockwise {
 }
 
 #v3-banner {
-    background-color: #42b983;
+    background-color: #ffad07;
     min-height: 40px;
     padding: 10px 60px;
     z-index: 19;
@@ -585,7 +585,7 @@ body.docs #header {
             content: "";
             width: 0;
             height: 0;
-            border-left: 5px solid #42b983;
+            border-left: 5px solid #ffad07;
             border-top: 3px solid transparent;
             border-bottom: 3px solid transparent;
             position: absolute;
@@ -612,7 +612,7 @@ body.docs #header {
 
     .nav-link:hover,
     .nav-link.current {
-        border-bottom: 3px solid #42b983;
+        border-bottom: 3px solid #ffad07;
     }
 
     .nav-link.new::before {
@@ -630,7 +630,7 @@ body.docs #header {
     position: absolute;
     top: 3px;
     left: 110%;
-    background-color: #42b983;
+    background-color: #ffad07;
     color: #fff;
     line-height: 16px;
     height: 16px;
@@ -658,7 +658,7 @@ body.docs #header {
 }
 
     .search-query:focus {
-        border-color: #42b983;
+        border-color: #ffad07;
     }
 
 #logo {
@@ -968,10 +968,10 @@ ul.demo li {
     }
 
 .become-backer {
-    border: 1px solid #42b983;
+    border: 1px solid #ffad07;
     border-radius: 2em;
     display: inline-block;
-    color: #42b983;
+    color: #ffad07;
     font-size: 0.8em;
     width: 125px;
     padding: 4px 0;
@@ -1113,7 +1113,7 @@ ul.demo li {
 
         .sidebar .sidebar-link.current {
             font-weight: 600;
-            color: #42b983;
+            color: #ffad07;
         }
 
         .sidebar .sidebar-link.new:after {
@@ -1122,7 +1122,7 @@ ul.demo li {
             font-size: 10px;
             font-weight: 600;
             color: #fff;
-            background-color: #42b983;
+            background-color: #ffad07;
             line-height: 14px;
             padding: 0 4px;
             border-radius: 3px;
@@ -1133,12 +1133,12 @@ ul.demo li {
         }
 
         .sidebar .sidebar-link:hover {
-            border-bottom: 2px solid #42b983;
+            border-bottom: 2px solid #ffad07;
         }
 
     .sidebar .section-link.active {
         font-weight: bold;
-        color: #42b983;
+        color: #ffad07;
     }
 
     .sidebar .main-menu {
@@ -1651,7 +1651,7 @@ ul.demo li {
 }
 
 .style-guide a > .style-rule-tag {
-    color: #42b983;
+    color: #ffad07;
 }
 
 .style-guide sup {
@@ -1703,7 +1703,7 @@ ul.demo li {
 }
 
     .modal-text > a {
-        color: #42b983;
+        color: #ffad07;
         font-weight: 600;
     }
 
@@ -1860,7 +1860,7 @@ ul.demo li {
             font-size: 10px;
             font-weight: 600;
             color: #fff;
-            background-color: #42b983;
+            background-color: #ffad07;
             line-height: 14px;
             padding: 0 4px;
             border-radius: 3px;
@@ -1884,7 +1884,7 @@ ul.demo li {
     }
 
         .themes-grid .see-more-container .see-more-link {
-            color: #42b983;
+            color: #ffad07;
             display: inline-block;
             width: auto;
         }
@@ -1996,7 +1996,7 @@ ul.demo li {
 
         .content h3 > a:before {
             content: "#";
-            color: #42b983;
+            color: #ffad07;
             position: absolute;
             left: -0.7em;
             margin-top: -0.05em;
@@ -2034,14 +2034,14 @@ ul.demo li {
         }
 
     .content a {
-        color: #42b983;
+        color: #ffad07;
         font-weight: 600;
     }
 
     .content blockquote {
         margin: 2em 0;
         padding-left: 20px;
-        border-left: 4px solid #42b983;
+        border-left: 4px solid #ffad07;
     }
 
         .content blockquote p {
@@ -2135,13 +2135,13 @@ ul.demo li {
         }
 
     .content p.success {
-        border-left-color: #42b983;
+        border-left-color: #ffad07;
     }
 
         .content p.success:before {
             content: "\f00c";
             font-family: FontAwesome;
-            background-color: #42b983;
+            background-color: #ffad07;
         }
 
     .content p.warning {
@@ -2218,7 +2218,7 @@ ul.demo li {
 
         .nav-link:hover,
         .nav-link.current {
-            border-bottom: 2px solid #42b983;
+            border-bottom: 2px solid #ffad07;
         }
 
     #mobile-bar {
