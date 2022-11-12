@@ -6,7 +6,7 @@ Pomelo Vue = Pomelo + Vue3. Pomelo handled routing, layouts, component, pages. A
 
 Pomelo Vue is a redistributed version of Vue.js which doesn't depend on web pack, or other tool chain. pomelo.vue.js can run with browser directly.
 
-You can define script-template separated pages, components, layouts with Pue.js.
+You can define script-template separated pages, components, layouts with pomelo.vue.js.
 
 ## Getting Started
 
