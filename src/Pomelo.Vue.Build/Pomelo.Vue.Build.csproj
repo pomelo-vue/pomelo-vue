@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="pomelo-cache-query.js" />
+    <None Remove="pomelo.cachequery.js" />
     <None Remove="pomelo.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="pomelo-cache-query.js">
+    <Content Include="pomelo.cachequery.js">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

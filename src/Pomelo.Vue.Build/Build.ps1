@@ -20,7 +20,7 @@ $vueJsContent = $vueJsContent.Replace('$root: i => getPublicInstance(i.root),', 
 $vueJsContent = $vueJsContent.Replace('$watch: i => (instanceWatch.bind(i) )', $publicPropertiesMap)
 $vueJsContent = "// Vue`r`n" + $vueJsContent + "`r`n// Pomelo" + "`r`n" + $pomeloContent
 
-Write-Host 'Generating scripts...'
+Write-Host 'Generating pue...'
 $outputDir = Join-Path $currentFolder 'bin/js'
 If (-Not (Test-Path $outputDir)) {
     New-Item -Path $outputDir -ItemType Directory
@@ -37,4 +37,26 @@ Write-Host 'Copying scripts to sample project...'
 Copy-Item -Path $original -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.js') -Force
 Copy-Item -Path $min  -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.min.js') -Force
 
-Write-Host 'Finished'
+Write-Host 'Finished generate pue.js & pue.min.js'
+
+Write-Host 'Generating pomelo.cachequery...'
+$cq = 'pomelo.cachequery.js'
+$cqPath = Join-Path $currentFolder $cq
+$cqPublish = Join-Path $outputDir $cq
+Copy-Item -Path $cqPath -Destination $cqPublish
+$min = Join-Path $outputDir 'pomelo.cachequery.min.js'
+uglifyjs $cqPublish -m -o $min
+Copy-Item -Path $min -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pomelo.cachequery.js') -Force
+Copy-Item -Path $min -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pomelo.cachequery.min.js') -Force
+Write-Host 'Finished generate pomelo.cachequery.js & pomelo.cachequery.min.js'
+
+Write-Host 'Generating pomelo.commonjs...'
+$commonJs = 'pomelo.commonjs.js'
+$cjsPath = Join-Path $currentFolder $commonJs
+$cjsPublish = Join-Path $outputDir $commonJs
+Copy-Item -Path $cjsPath -Destination $cjsPublish
+$min = Join-Path $outputDir 'pomelo.commonjs.min.js'
+uglifyjs $cjsPublish -m -o $min
+Copy-Item -Path $min -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pomelo.commonjs.js') -Force
+Copy-Item -Path $min -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pomelo.commonjs.min.js') -Force
+Write-Host 'Finished generate pomelo.commonjs.js & pomelo.commonjs.min.js'

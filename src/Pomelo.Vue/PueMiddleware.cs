@@ -8,10 +8,12 @@
 
         internal static string PuePath = "";
 
+        internal static string CommonJsPath = "";
+
         public PueMiddleware(RequestDelegate next)
         {
             _next = next;
-            _main = $"<html><head><script>var PueOptions = {{ mobile() {{ return false; }} }};</script><script src=\"{PuePath}\"></script></head></html>";
+            _main = $"<html><head><script>var PueOptions = {{ mobile() {{ return false; }} }};</script><script src=\"{CommonJsPath}\"></script></script><script src=\"{PuePath}\"></script></head></html>";
         }
 
         public async Task Invoke(HttpContext httpContext)
@@ -51,9 +53,10 @@
 
     public static class PueMiddlewareExtensions
     {
-        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pue.js")
+        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pue.js", string commonJsPath = "/assets/js/pomelo.commonjs.js")
         {
             PueMiddleware.PuePath = puePath;
+            PueMiddleware.CommonJsPath = commonJsPath;
             return builder.UseMiddleware<PueMiddleware>();
         }
     }

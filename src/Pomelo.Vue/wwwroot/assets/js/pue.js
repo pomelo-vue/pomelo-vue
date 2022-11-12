@@ -16195,8 +16195,8 @@ var Pomelo = (function (exports, options) {
 
                     var self = this;
 
-                    _parseQueryString(params);
                     params = generateParametersFromRoute(params);
+                    _parseQueryString(params);
                     return _buildApp(url, params, mobile, currentProxy).then(function (result) {
                         self.active = result;
                         self.active = self.active.mount(self.selector);
@@ -16382,7 +16382,6 @@ var Pomelo = (function (exports, options) {
     function generateParametersFromRoute(params = {}) {
         var route = null;
         route = Pomelo.MatchRoute();
-        console.warn(route);
         if (route == null) {
             try {
                 _options.onNotFound(window.location.pathname + window.location.search);
