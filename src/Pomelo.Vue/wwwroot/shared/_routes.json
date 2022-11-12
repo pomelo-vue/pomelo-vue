@@ -1,6 +1,6 @@
 ﻿{
   "/": "/page",
-  "/docs/{id:[a-zA-Z0-9_-]{1,}}": "/page",
+  "/docs/{id:([a-zA-Z0-9_-]{1,})}": "/page",
   "/standalone": "/standalone",
   "/404": "/shared/_404"
 }

@@ -258,6 +258,7 @@ var Pomelo = (function (exports, options) {
 
                     var self = this;
 
+                    params = generateParametersFromRoute(params);
                     _parseQueryString(params);
                     return _buildApp(url, params, mobile, currentProxy).then(function (result) {
                         self.active = result;
@@ -441,12 +442,8 @@ var Pomelo = (function (exports, options) {
         })
     }
 
-    function UpdateLayout() {
-        var mobile = _options.mobile();
-        var params = {};
+    function generateParametersFromRoute(params = {}) {
         var route = null;
-        var layout = _options.layout;
-
         route = Pomelo.MatchRoute();
         if (route == null) {
             try {
@@ -462,6 +459,18 @@ var Pomelo = (function (exports, options) {
             var param = route.params[i];
             _fillObjectField(param.key, param.value, params);
         }
+
+        return params;
+    }
+
+    function UpdateLayout() {
+        var mobile = _options.mobile();
+        var params = {};
+        var route = null;
+        var layout = _options.layout;
+
+        route = Pomelo.MatchRoute();
+        params = generateParametersFromRoute();
 
         var _def;
         return _httpGet(route.view + '.js').then(function (def) {
@@ -567,6 +576,18 @@ var Pomelo = (function (exports, options) {
                         Root(options, '#' + appId, layout);
                     };
                     eval(_def);
+                    if (!_options.data) {
+                        _options.data = function () {
+                            return {};
+                        };
+                    }
+                    var dataFunc = _options.data;
+                    _options.data = function () {
+                        var data = dataFunc();
+                        _combineObject(params, data);
+                        _parseQueryString(data);
+                        return data;
+                    }
                     return _resolveModules(_options.modules).then(function () {
                         PageNext(_options);
                         return Promise.resolve();

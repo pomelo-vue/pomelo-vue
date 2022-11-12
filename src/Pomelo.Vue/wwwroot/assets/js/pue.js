@@ -16196,6 +16196,7 @@ var Pomelo = (function (exports, options) {
                     var self = this;
 
                     _parseQueryString(params);
+                    params = generateParametersFromRoute(params);
                     return _buildApp(url, params, mobile, currentProxy).then(function (result) {
                         self.active = result;
                         self.active = self.active.mount(self.selector);
@@ -16378,13 +16379,10 @@ var Pomelo = (function (exports, options) {
         })
     }
 
-    function UpdateLayout() {
-        var mobile = _options.mobile();
-        var params = {};
+    function generateParametersFromRoute(params = {}) {
         var route = null;
-        var layout = _options.layout;
-
         route = Pomelo.MatchRoute();
+        console.warn(route);
         if (route == null) {
             try {
                 _options.onNotFound(window.location.pathname + window.location.search);
@@ -16399,6 +16397,18 @@ var Pomelo = (function (exports, options) {
             var param = route.params[i];
             _fillObjectField(param.key, param.value, params);
         }
+
+        return params;
+    }
+
+    function UpdateLayout() {
+        var mobile = _options.mobile();
+        var params = {};
+        var route = null;
+        var layout = _options.layout;
+
+        route = Pomelo.MatchRoute();
+        params = generateParametersFromRoute();
 
         var _def;
         return _httpGet(route.view + '.js').then(function (def) {
@@ -16504,6 +16514,18 @@ var Pomelo = (function (exports, options) {
                         Root(options, '#' + appId, layout);
                     };
                     eval(_def);
+                    if (!_options.data) {
+                        _options.data = function () {
+                            return {};
+                        };
+                    }
+                    var dataFunc = _options.data;
+                    _options.data = function () {
+                        var data = dataFunc();
+                        _combineObject(params, data);
+                        _parseQueryString(data);
+                        return data;
+                    }
                     return _resolveModules(_options.modules).then(function () {
                         PageNext(_options);
                         return Promise.resolve();
