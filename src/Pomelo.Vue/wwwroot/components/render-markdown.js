@@ -3,7 +3,7 @@
 Component('render-markdown', {
     props: ['content'],
     modules: [
-        "https://cdn.bootcdn.net/ajax/libs/marked/4.0.2/marked.js"
+        //"https://cdn.bootcdn.net/ajax/libs/marked/4.0.2/marked.js" // Module based
     ],
     data() {
         return {
