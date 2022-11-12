@@ -5,7 +5,7 @@ Add `pue.js` into html header.
 ```
 <html>
 	<head>
-		<script src="https://unpkg.com/pomelo-vue@0"></script>
+		<script src="https://unpkg.com/pomelo-vue"></script>
 	</head>
 </html>
 ```
@@ -13,7 +13,7 @@ Add `pue.js` into html header.
 You can also use the compressed version: 
 
 ```
-https://unpkg.com/pomelo-vue@0/pue.min.js
+https://unpkg.com/pomelo-vue/pomelo.vue.min.js
 ```
 
 Make sure your host always return the above page when the requested resource is not existing. 
@@ -74,7 +74,7 @@ namespace Pomelo.Vue
 
     public static class PueMiddlewareExtensions
     {
-        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pue.js")
+        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pomelo.vue.js")
         {
             PueMiddleware.PuePath = puePath;
             return builder.UseMiddleware<PueMiddleware>();

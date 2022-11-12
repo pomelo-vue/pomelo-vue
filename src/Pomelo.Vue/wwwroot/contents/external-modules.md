@@ -1,6 +1,6 @@
 ﻿# External Modules
 
-In our daily web development, we always using 3rd-party libraries like `marked.js`, `moment.js`, etc. There are 2 ways to introduce the 3rd party javascript librraries into Pomelo VUE project.
+In our daily web development, we always using 3rd-party libraries like `marked.js`, `moment.js`, etc. There are 2 ways to introduce the 3rd party javascript librraries into Pomelo Vue project.
 
 ## Declare in options
 

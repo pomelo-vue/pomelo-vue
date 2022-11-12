@@ -17,7 +17,7 @@ When Pomelo matched URL-View mapping. Pomelo will load the specified view automa
 You can define a regexp to matching the URLs as below:
 ```
 {
-  "/docs/{id:[a-zA-Z0-9_-]{1,}}": "/page"
+  "/docs/{id:([a-zA-Z0-9_-]{1,})}": "/page"
 }
 ```
 

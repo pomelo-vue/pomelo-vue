@@ -20,13 +20,13 @@ $vueJsContent = $vueJsContent.Replace('$root: i => getPublicInstance(i.root),', 
 $vueJsContent = $vueJsContent.Replace('$watch: i => (instanceWatch.bind(i) )', $publicPropertiesMap)
 $vueJsContent = "// Vue`r`n" + $vueJsContent + "`r`n// Pomelo" + "`r`n" + $pomeloContent
 
-Write-Host 'Generating pue...'
+Write-Host 'Generating pomelo.vue...'
 $outputDir = Join-Path $currentFolder 'bin/js'
 If (-Not (Test-Path $outputDir)) {
     New-Item -Path $outputDir -ItemType Directory
 }
-$original = Join-Path $outputDir 'pue.dev.js'
-$min = Join-Path $outputDir 'pue.dev.min.js'
+$original = Join-Path $outputDir 'pomelo.vue.dev.js'
+$min = Join-Path $outputDir 'pomelo.vue.dev.min.js'
 Set-Content -Path $original -Value $vueJsContent
 uglifyjs $original -m -o $min
 Write-Host 'Generated ' $original
@@ -34,7 +34,7 @@ Write-Host 'Generated ' $min
 Copy-Item -Path (Join-Path $currentFolder 'package.json') -Destination (Join-Path $outputDir 'package.json') -Force
 
 Write-Host 'Copying scripts to sample project...'
-Copy-Item -Path $original -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.dev.js') -Force
-Copy-Item -Path $min  -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pue.dev.min.js') -Force
+Copy-Item -Path $original -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pomelo.vue.dev.js') -Force
+Copy-Item -Path $min  -Destination (Join-Path $currentFolder '../Pomelo.Vue/wwwroot/assets/js/pomelo.vue.dev.min.js') -Force
 
-Write-Host 'Finished generate pue.dev.js & pue.dev.min.js'
+Write-Host 'Finished generate pomelo.vue.dev.js & pomelo.vue.dev.min.js'

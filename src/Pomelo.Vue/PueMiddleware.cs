@@ -53,7 +53,7 @@
 
     public static class PueMiddlewareExtensions
     {
-        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pue.js", string commonJsPath = "/assets/js/pomelo.commonjs.js")
+        public static IApplicationBuilder UsePueMiddleware(this IApplicationBuilder builder, string puePath = "/assets/js/pomelo.vue.js", string commonJsPath = "/assets/js/pomelo.commonjs.js")
         {
             PueMiddleware.PuePath = puePath;
             PueMiddleware.CommonJsPath = commonJsPath;
