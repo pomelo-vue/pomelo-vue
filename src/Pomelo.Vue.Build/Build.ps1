@@ -1,4 +1,5 @@
-﻿$outputDir = Join-Path $currentFolder 'bin/js'
+﻿$currentFolder = Get-Location
+$outputDir = Join-Path $currentFolder 'bin/js'
 If (Test-Path $outputDir) {
     Remove-Item -Path $outputDir -Force -Recurse
 }
