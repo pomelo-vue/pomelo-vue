@@ -16745,5 +16745,5 @@ var Pomelo = (function (exports, options) {
     exports.ForceUpdate = ForceUpdate;
 
     return exports;
-})({}, window.PueOptions || {});
+})(typeof exports == 'undefined' ? {} : exports, window.PomeloVueOptions || window.PueOptions || {});
 
