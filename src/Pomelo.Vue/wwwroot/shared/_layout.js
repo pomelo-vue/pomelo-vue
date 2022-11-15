@@ -1,4 +1,5 @@
 ﻿Layout({
+    style: true,
     data() {
         return {
             id: null,

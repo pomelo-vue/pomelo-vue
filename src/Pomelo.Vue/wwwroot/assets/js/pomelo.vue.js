@@ -29,6 +29,9 @@ var Pomelo = (function (exports, options) {
 
     // Common
     var _cache = {};
+
+    var _css = {};
+
     function _httpCached(url) {
         return !!_cache[url];
     }
@@ -154,6 +157,7 @@ var Pomelo = (function (exports, options) {
                     componentObject = options;
                 };
                 eval(js);
+                hookMountedAndUnmounted(componentObject, url + (mobile ? '.m' : ''));
                 return _resolveModules(componentObject.modules).then(function () {
                     return Promise.resolve(componentObject)
                 });
@@ -468,6 +472,65 @@ var Pomelo = (function (exports, options) {
         return params;
     }
 
+    function appendCssReference(view) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = view + '.css';
+        try {
+            document.querySelector('head').appendChild(link);
+        } catch (ex) { }
+    }
+
+    function removeCssReference(view) {
+        var dom = document.querySelector('link[href="' + view + '.css"]');
+        if (dom) {
+            dom.remove();
+        }
+    }
+
+    function hookMountedAndUnmounted(options, view) {
+        if (!options) {
+            return;
+        }
+
+        if (!options.mounted) {
+            options.mounted = function () { };
+        }
+
+        if (!options.unmounted) {
+            options.unmounted = function () { };
+        }
+
+        if (options.style) {
+            var originalMounted = options.mounted;
+            options.mounted = function () {
+                if (!_css[view]) {
+                    _css[view] = 0;
+                }
+                if (_css[view] == 0) {
+                    appendCssReference(view);
+                }
+                ++_css[view];
+                return originalMounted.call(this);
+            };
+
+            var originalUnmounted = options.unmounted;
+            options.unmounted = function () {
+                if (!_css[view]) {
+                    return;
+                }
+
+                --_css[view];
+                if (_css[view] <= 0) {
+                    removeCssReference(view);
+                    delete _css[view];
+                }
+                return originalUnmounted.call(this);
+            };
+        }
+    }
+
     function UpdateLayout() {
         var mobile = _options.mobile();
         var params = {};
@@ -478,14 +541,18 @@ var Pomelo = (function (exports, options) {
         params = generateParametersFromRoute();
 
         var _def;
+        var viewName = route.view + (_options.mobile() ? '.m' : '');
         return _httpGet(route.view + '.js').then(function (def) {
             _def = def;
             var modules = null;
+            var _opt;
             var Page = function (options) {
+                _opt = options;
                 layout = options.layout || layout;
                 modules = options.modules;
             };
             def = eval(def);
+            hookMountedAndUnmounted(_opt, viewName);
             return _resolveModules(modules);
         }).then(function () {
             if (Pomelo.root() && Pomelo.root().$layout) {
@@ -512,7 +579,8 @@ var Pomelo = (function (exports, options) {
             }
 
             if (layout) {
-                return _httpGet(layout + (mobile ? '.m.html' : '.html')).then(function (layoutHtml) {
+                var layoutName = layout + (mobile ? '.m' : '');
+                return _httpGet(layoutName + '.html').then(function (layoutHtml) {
                     var htmlBeginTagIndex = layoutHtml.indexOf('<html');
                     var htmlBeginTagIndex2 = layoutHtml.indexOf('>', htmlBeginTagIndex);
                     layoutHtml = layoutHtml.substr(htmlBeginTagIndex2 + 1);
@@ -522,9 +590,9 @@ var Pomelo = (function (exports, options) {
 
                     return _httpGet(layout + ".js");
                 }).then(function (js) {
-                    var _options = null;
+                    var _opt = null;
                     var Layout = function (options) {
-                        _options = options;
+                        _opt = options;
                     };
                     var LayoutNext = function (options) {
                         // Hook data()
@@ -536,7 +604,7 @@ var Pomelo = (function (exports, options) {
 
                         var dataFunc = options.data;
                         options.data = function () {
-                            var data = dataFunc();
+                            var data = dataFunc.call(this);
                             _combineObject(params, data);
                             _parseQueryString(data);
                             return data;
@@ -563,17 +631,19 @@ var Pomelo = (function (exports, options) {
                     };
 
                     eval(js);
-                    return _resolveModules(_options.modules).then(function () {
-                        LayoutNext(_options);
+                    hookMountedAndUnmounted(_opt, layoutName);
+                    return _resolveModules(_opt.modules).then(function () {
+                        LayoutNext(_opt);
                         return Promise.resolve();
                     });
                 });
             } else {
+                var viewName = route.view + (_options.mobile() ? '.m' : '');
                 return _applyLayoutHtml(route.view).then((appId) => {
-                    var _options = null;
+                    var _opt = null;
                     var components = null;
                     var Page = function (options) {
-                        _options = options;
+                        _opt = options;
                     };
                     var PageNext = function (options) {
                         modules = options.modules;
@@ -581,20 +651,21 @@ var Pomelo = (function (exports, options) {
                         Root(options, '#' + appId, layout);
                     };
                     eval(_def);
-                    if (!_options.data) {
-                        _options.data = function () {
+                    if (!_opt.data) {
+                        _opt.data = function () {
                             return {};
                         };
                     }
-                    var dataFunc = _options.data;
-                    _options.data = function () {
-                        var data = dataFunc();
+                    var dataFunc = _opt.data;
+                    _opt.data = function () {
+                        var data = dataFunc.call(this);
                         _combineObject(params, data);
                         _parseQueryString(data);
                         return data;
                     }
-                    return _resolveModules(_options.modules).then(function () {
-                        PageNext(_options);
+                    hookMountedAndUnmounted(_opt, viewName);
+                    return _resolveModules(_opt.modules).then(function () {
+                        PageNext(_opt);
                         return Promise.resolve();
                     });
                 });
@@ -707,22 +778,23 @@ var Pomelo = (function (exports, options) {
         var ret = [];
         return Promise.all(components.map(function (c) {
             var _html;
-            var _options;
+            var _opt;
             var _name;
             return _httpGet(c + ".html").then(function (comHtml) {
                 _html = comHtml;
                 return _httpGet(c + ".js");
             }).then(function (comJs) {
                 var Component = function (name, options) {
-                    _options = options;
+                    _opt = options;
                     _name = name;
                 };
                 eval(comJs);
-                _options.template = _html;
-                var p = _resolveModules(_options.modules);
+                hookMountedAndUnmounted(_opt, c);
+                _opt.template = _html;
+                var p = _resolveModules(_opt.modules);
                 return p;
             }).then(function () {
-                ret.push({ name: _name, options: _options });
+                ret.push({ name: _name, options: _opt });
                 return Promise.resolve();
             })
         })).then(function () {

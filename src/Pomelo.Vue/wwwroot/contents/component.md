@@ -67,6 +67,17 @@ Component('render-markdown', {
 });
 ```
 
+If you want to define the component-specified style sheet, you can create a file 'render-markdown.css'.
+
+Please note, if you want to load component independent css file, you should set `style` to `true` in your component options.
+
+```
+Component('render-markdown', {
+    style: true,
+    ...
+});
+```
+
 Finally, we can use this component in any views
 
 ```

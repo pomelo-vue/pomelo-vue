@@ -8,10 +8,11 @@ Layout always contains header, navigation, footer. These elements' behaviors alw
 
 ## Define a layout
 
-You can define a layout by creating 2 files
+You can define a layout by creating the files as below:
 
 - /shared/_layout.html
 - /shared/_layout.js
+- /shared/_layout.css (optional)
 
 ### Layout Template
 
@@ -58,6 +59,17 @@ Layout({
             self.catalog = JSON.parse(result);
         });
     }
+});
+```
+
+### Style Sheet
+
+Please note, if you want to load layout independent css file, you should set `style` to `true` in your layout options.
+
+```
+Layout({
+    style: true,
+    ...
 });
 ```
 

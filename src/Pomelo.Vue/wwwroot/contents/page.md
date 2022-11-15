@@ -1,9 +1,10 @@
 ﻿# Page
 
-If you want to create a page, you should create 2 files:
+If you want to create a page, you should create the files as below:
 
 - page1.html
 - page1.js
+- page1.css (optional)
 
 In the html file, you should ensure there will be only 1 root tag. And you can use all of the Vue syntax like `v-bind:...`, `v-for`, etc.
 
@@ -45,6 +46,17 @@ Page({
 ## Modules
 
 You can declare the js `modules` which you need. Pomelo will help you resolve these scripts. 
+
+## Style Sheet
+
+Please note, if you want to load page independent css file, you should set `style` to `true` in your page options.
+
+```
+Page({
+    style: true,
+    ...
+});
+```
 
 ## Layout
 

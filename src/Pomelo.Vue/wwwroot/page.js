@@ -26,5 +26,6 @@
     },
     mounted() {
         this.$root.id = this.id;
+        _httpGet('/assets/fuck/a.css').catch(function () { });
     }
 });
