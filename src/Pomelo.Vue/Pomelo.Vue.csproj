@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pomelo.Vue.Build\Pomelo.Vue.Build.csproj" />
+    <ProjectReference Include="..\Pomelo.Vue.Middleware\Pomelo.Vue.Middleware.csproj" />
   </ItemGroup>
 
   <ItemGroup>
