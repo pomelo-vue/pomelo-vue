@@ -1,0 +1,9 @@
+<Project>
+	<ItemGroup>
+		<File Include="$(MSBuildThisFileDirectory)..\js\*.*"></File>
+	</ItemGroup>
+
+	<Target Name="CopyFiles" BeforeTargets="Build">
+		<Copy SourceFiles="@(File)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"></Copy>
+	</Target>
+</Project>

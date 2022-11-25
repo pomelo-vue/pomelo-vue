@@ -1,7 +1,2 @@
-$currentPath = Get-Location
-$buildPath = Join-Path $currentPath '..'
-$buildPath = Join-Path $buildPath 'Pomelo.Vue.Build'
-$packageJsonPath = Join-Path $buildPath 'package.json'
-$content = Get-Content $packageJsonPath | ConvertFrom-Json
-$version = 'r'+ $content.version
+$version = 'r' + [System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss")
 dotnet pack --version-suffix $version -c Release

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+	<metadata>
+		<id>Pomelo.Vue.JavaScript</id>
+		<version>1.0.0</version>
+		<authors>Pomelo.Vue.JavaScript</authors>
+		<iconUrl>https://avatars.githubusercontent.com/u/118058485</iconUrl>
+		<contentFiles>
+			<files include="**\*.js" buildAction="None" copyToOutput="false" />
+		</contentFiles>
+		<description>pomelo.vue.js</description>
+	</metadata>
+	<files>
+		<file src="bin\js\pomelo.cachequery.js" target="js" />
+		<file src="bin\js\pomelo.cachequery.min.js" target="js" />
+		<file src="bin\js\pomelo.commonjs.js" target="js" />
+		<file src="bin\js\pomelo.commonjs.min.js" target="js" />
+		<file src="bin\js\pomelo.vue.dev.js" target="js" />
+		<file src="bin\js\pomelo.vue.dev.min.js" target="js" />
+		<file src="bin\js\pomelo.vue.js" target="js" />
+		<file src="bin\js\pomelo.vue.min.js" target="js" />
+		<file src="Pomelo.Vue.JavaScript.targets" target="build" />
+	</files>
+</package>

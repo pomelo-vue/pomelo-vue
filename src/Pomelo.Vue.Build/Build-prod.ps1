@@ -33,8 +33,4 @@ Write-Host 'Generated ' $original
 Write-Host 'Generated ' $min
 Copy-Item -Path (Join-Path $currentFolder 'package.json') -Destination (Join-Path $outputDir 'package.json') -Force
 
-Write-Host 'Copying scripts to sample project...'
-Copy-Item -Path $original -Destination (Join-Path $currentFolder '../Pomelo.Vue.Middleware/pomelo.vue.js') -Force
-Copy-Item -Path $min  -Destination (Join-Path $currentFolder '../Pomelo.Vue.Middleware/pomelo.vue.min.js') -Force
-
 Write-Host 'Finished generate pomelo.vue.js & pomelo.vue.min.js'
