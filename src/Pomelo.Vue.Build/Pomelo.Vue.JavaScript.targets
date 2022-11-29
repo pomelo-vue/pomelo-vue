@@ -6,4 +6,8 @@
 	<Target Name="CopyFiles" BeforeTargets="Build">
 		<Copy SourceFiles="@(File)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"></Copy>
 	</Target>
+
+	<Target Name="CopyFiles2" BeforeTargets="Publish">
+		<Copy SourceFiles="@(File)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="true"></Copy>
+	</Target>
 </Project>

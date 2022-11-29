@@ -45,6 +45,8 @@ namespace Pomelo.Vue.Middleware
         public List<string> BypassUrlPrefixes { get; set; } = new List<string> { "/api/" };
 
         public string WebRootPath { get; set; }
+
+        public string AssetsVersion { get; set; }
     }
 
     public class PomeloVueMiddleware
@@ -134,12 +136,29 @@ namespace Pomelo.Vue.Middleware
 <head>
     <meta charset=""{options.Charset}"" />
     <title></title>
-    {(options.UseCommonJs ? ($"<script src=\"{options.MappingBase}{PomeloVueBranchCommonJsFileName[(int)options.Branch]}\"></script>") : "")}
-    <script src=""{options.ConfigureJs}""></script>
-    <script src=""{options.MappingBase}{PomeloVueBranchFileName[(int)options.Branch]}""></script>
-    {(options.UseCacheQuery ? ($"<script src=\"{options.MappingBase}{PomeloVueBranchCacheQueryFileName[(int)options.Branch]}\"></script>") : "")}
+    {(options.UseCommonJs ? ($"<script src=\"{options.MappingBase}{GenerateAssetsWithVersion(PomeloVueBranchCommonJsFileName[(int)options.Branch], options.AssetsVersion)}\"></script>") : "")}
+    <script src=""{GenerateAssetsWithVersion(options.ConfigureJs, options.AssetsVersion)}""></script>
+    <script>if (!window.PomeloVueOptions) {{ window.PomeloVueOptions = {{}}; }} window.PomeloVueOptions.version = '{options.AssetsVersion}';</script>
+    <script src=""{options.MappingBase}{GenerateAssetsWithVersion(PomeloVueBranchFileName[(int)options.Branch], options.AssetsVersion)}""></script>
+    {(options.UseCacheQuery ? ($"<script src=\"{options.MappingBase}{GenerateAssetsWithVersion(PomeloVueBranchCacheQueryFileName[(int)options.Branch], options.AssetsVersion)}\"></script>") : "")}
 </head>
 </html>";
+        }
+
+        private static string GenerateAssetsWithVersion(string asset, string version)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                return asset;
+            }
+            else if (asset.Contains("?"))
+            {
+                return asset + "&v=" + version;
+            }
+            else
+            {
+                return asset + "?v=" + version;
+            }
         }
 
         private static readonly string[] PomeloVueBranchFileName = new[]

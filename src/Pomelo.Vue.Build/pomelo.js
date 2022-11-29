@@ -36,7 +36,17 @@ var Pomelo = (function (exports, options) {
             return Promise.resolve(_cache[url]);
         }
 
-        return _options.httpGet(url).then(function (result) {
+        var _url = url;
+        if (_options.version) {
+            if (url.indexOf('?') > 0) {
+                _url += "&";
+            } else {
+                _url += "?"
+            }
+            _url += "v=" + _options.version;
+        }
+
+        return _options.httpGet(_url).then(function (result) {
             if (result.status > 300 || result.status < 200) {
                 return Promise.reject(result);
             }
@@ -471,14 +481,18 @@ var Pomelo = (function (exports, options) {
         var link = document.createElement('link');
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = view + '.css';
+        var href = view + '.css';
+        if (_options.version) {
+            href += '?v=' + _options.version;
+        }
+        link.href = href;
         try {
             document.querySelector('head').appendChild(link);
         } catch (ex) { }
     }
 
     function removeCssReference(view) {
-        var dom = document.querySelector('link[href="' + view + '.css"]');
+        var dom = document.querySelector('link[href="' + view + '.css' + (_options.version ? ('?v=' + _options.version) : '' ) + '"]');
         if (dom) {
             dom.remove();
         }
@@ -808,4 +822,4 @@ var Pomelo = (function (exports, options) {
     exports.ForceUpdate = ForceUpdate;
 
     return exports;
-})(typeof exports == 'undefined' ? {} : exports, window.PomeloVueOptions || window.PueOptions || {});
+})(typeof exports == 'undefined' ? {} : exports, window.PomeloVueOptions || {});

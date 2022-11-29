@@ -41,7 +41,17 @@ var Pomelo = (function (exports, options) {
             return Promise.resolve(_cache[url]);
         }
 
-        return _options.httpGet(url).then(function (result) {
+        var _url = url;
+        if (_options.version) {
+            if (url.indexOf('?') > 0) {
+                _url += "&";
+            } else {
+                _url += "?"
+            }
+            _url += "v=" + _options.version;
+        }
+
+        return _options.httpGet(_url).then(function (result) {
             if (result.status > 300 || result.status < 200) {
                 return Promise.reject(result);
             }
