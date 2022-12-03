@@ -7,8 +7,6 @@ $cqPublish = Join-Path $outputDir $cq
 Copy-Item -Path $cqPath -Destination $cqPublish
 $min = Join-Path $outputDir 'pomelo.cachequery.min.js'
 uglifyjs $cqPublish -m -o $min
-Copy-Item -Path $min -Destination (Join-Path $currentFolder '../Pomelo.Vue.Middleware/pomelo.cachequery.js') -Force
-Copy-Item -Path $min -Destination (Join-Path $currentFolder '../Pomelo.Vue.Middleware/pomelo.cachequery.min.js') -Force
 Write-Host 'Finished generate pomelo.cachequery.js & pomelo.cachequery.min.js'
 
 Write-Host 'Generating pomelo.commonjs...'
