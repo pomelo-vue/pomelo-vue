@@ -2,6 +2,7 @@ var Pomelo = (function (exports, options) {
     // Options
     var _options = {
         resolveModulesParallelly: true,
+        removeStyleWhenUnmount: false,
         mobile: function () {
             return window.innerWidth <= 768;
         },
@@ -127,7 +128,7 @@ var Pomelo = (function (exports, options) {
         }
     }
 
-    function _resolveModules(modules) {
+    function _resolveModules(modules, viewName) { // viewName is only for parse macro
         if (!modules) {
             return Promise.resolve();
         }
@@ -135,7 +136,7 @@ var Pomelo = (function (exports, options) {
         if (_options.resolveModulesParallelly) {
             var promises = [];
             for (var i = 0; i < modules.length; ++i) {
-                promises.push(LoadScript(modules[i]));
+                promises.push(LoadScript(parseMacroPath(viewName, modules[i])));
             }
 
             return Promise.all(promises);
@@ -143,7 +144,7 @@ var Pomelo = (function (exports, options) {
             var promise = Promise.resolve(null);
             var makeFunc = function (module) {
                 return function (result) {
-                    return LoadScript(module);
+                    return LoadScript(parseMacroPath(viewName, module));
                 };
             };
             for (var i = 0; i < modules.length; ++i) {
@@ -163,7 +164,7 @@ var Pomelo = (function (exports, options) {
                 };
                 eval(js);
                 hookMountedAndUnmounted(componentObject, url + (mobile ? '.m' : ''));
-                return _resolveModules(componentObject.modules).then(function () {
+                return _resolveModules(componentObject.modules, url).then(function () {
                     return Promise.resolve(componentObject)
                 });
             })
@@ -208,7 +209,7 @@ var Pomelo = (function (exports, options) {
                 };
 
                 // Create instance
-                return _resolveModules(component.modules).then(function () {
+                return _resolveModules(component.modules, url).then(function () {
                     var components = component.components || [];
                     return _loadComponents(components).then(function (components) {
                         var ret = Vue.createApp(component);
@@ -320,7 +321,7 @@ var Pomelo = (function (exports, options) {
             }
             _attachContainer(instance);
         };
-        return _resolveModules(options.modules).then(function () {
+        return _resolveModules(options.modules, layout).then(function () {
             return _loadComponents(options.components || []).then(function (components) {
                 var app = Vue.createApp(options || {});
                 for (var i = 0; i < components.length; ++i) {
@@ -477,6 +478,30 @@ var Pomelo = (function (exports, options) {
         return params;
     }
 
+    function parseMacroPath(viewName, href) {
+        if (!href) {
+            href = '';
+        }
+
+        if (href.indexOf('@') < 0) {
+            return href;
+        }
+
+        var containingFolder = '/';
+        var folderIndex = viewName.lastIndexOf('/');
+        if (folderIndex >= 0) {
+            containingFolder = viewName.substr(0, folderIndex);
+        }
+        href = href.replaceAll('@(view)', viewName)
+            .replaceAll('@(css)', viewName + '.css')
+            .replaceAll('@(less)', viewName + '.less')
+            .replaceAll('@(sass)', viewName + '.sass')
+            .replaceAll('@(scss)', viewName + '.scss')
+            .replaceAll('@(containingFolder)', containingFolder)
+            .replaceAll('@', viewName + '.css');
+        return href;
+    }
+
     function appendCssReference(view, style) {
         if (typeof style == 'boolean') {
             var href = view + '.css';
@@ -485,9 +510,7 @@ var Pomelo = (function (exports, options) {
             }
             internalAppendCssReference(view, href);
         } else if (typeof style == 'string') {
-            var href = style;
-            if (href == '@') {
-            }
+            var href = parseMacroPath(view, style);
             if (_options.version) {
                 if (href.indexOf('>') < 0) {
                     href += '?v=' + _options.version;
@@ -501,7 +524,7 @@ var Pomelo = (function (exports, options) {
                 if (typeof style[i] != 'string') {
                     continue;
                 }
-                var href = style[i];
+                var href = parseMacroPath(view, style[i]);
                 if (href == '@') {
                     href = view + '.css';
                 }
@@ -520,9 +543,13 @@ var Pomelo = (function (exports, options) {
     }
 
     function internalAppendCssReference(viewName, href) {
+        if (document.querySelectorAll('link[href="' + href + '"]').length) {
+            return;
+        }
+
         var link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.type = 'text/css';
+        link.type = 'text/' + getStyleSheetType(href);
         link.setAttribute('data-style', viewName)
         link.href = href;
         try {
@@ -530,7 +557,25 @@ var Pomelo = (function (exports, options) {
         } catch (ex) { }
     }
 
+    function getStyleSheetType(styleSheetUrl) {
+        var questionMarkIndex = styleSheetUrl.lastIndexOf('?');
+        if (questionMarkIndex >= 0) {
+            styleSheetUrl = styleSheetUrl.substr(0, questionMarkIndex);
+        }
+
+        var dotIndex = styleSheetUrl.lastIndexOf('.');
+        if (dotIndex < 0) {
+            return null;
+        }
+
+        return styleSheetUrl.substr(dotIndex + 1).toLowerCase();
+    }
+
     function removeCssReference(view) {
+        if (!_options.removeStyleWhenUnmount) {
+            return;
+        }
+
         var dom = document.querySelectorAll('link[data-style="' + view + '"]');
         if (dom && dom.length) {
             for (var i = 0; i < dom.length; ++i) {
@@ -603,7 +648,7 @@ var Pomelo = (function (exports, options) {
             };
             def = eval(def);
             hookMountedAndUnmounted(_opt, viewName);
-            return _resolveModules(modules);
+            return _resolveModules(modules, viewName);
         }).then(function () {
             if (Pomelo.root() && Pomelo.root().$layout) {
                 if (Pomelo.root().$layout === layout) {
@@ -682,7 +727,7 @@ var Pomelo = (function (exports, options) {
 
                     eval(js);
                     hookMountedAndUnmounted(_opt, layoutName);
-                    return _resolveModules(_opt.modules).then(function () {
+                    return _resolveModules(_opt.modules, layout).then(function () {
                         LayoutNext(_opt);
                         return Promise.resolve();
                     });
@@ -714,7 +759,7 @@ var Pomelo = (function (exports, options) {
                         return data;
                     }
                     hookMountedAndUnmounted(_opt, viewName);
-                    return _resolveModules(_opt.modules).then(function () {
+                    return _resolveModules(_opt.modules, viewName).then(function () {
                         PageNext(_opt);
                         return Promise.resolve();
                     });
@@ -846,7 +891,7 @@ var Pomelo = (function (exports, options) {
                 eval(comJs);
                 hookMountedAndUnmounted(_opt, c);
                 _opt.template = _html;
-                var p = _resolveModules(_opt.modules);
+                var p = _resolveModules(_opt.modules, c);
                 return p;
             }).then(function () {
                 ret.push({ name: _name, options: _opt });
