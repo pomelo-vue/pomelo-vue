@@ -162,6 +162,12 @@ var Pomelo = (function (exports, options) {
                 var Page = function (options) {
                     componentObject = options;
                 };
+                if (PomeloModule) {
+                    var require = function (script, workingDirectory, mode) {
+                        workingDirectory = workingDirectory || PomeloModule.getContainingFolder(url);
+                        return PomeloModule.require(script, workingDirectory, mode);
+                    };
+                }
                 eval(js);
                 hookMountedAndUnmounted(componentObject, url + (mobile ? '.m' : ''));
                 return _resolveModules(componentObject.modules, url).then(function () {
@@ -211,7 +217,7 @@ var Pomelo = (function (exports, options) {
                 // Create instance
                 return _resolveModules(component.modules, url).then(function () {
                     var components = component.components || [];
-                    return _loadComponents(components).then(function (components) {
+                    return _loadComponents(components, url).then(function (components) {
                         var ret = Vue.createApp(component);
 
                         for (var i = 0; i < components.length; ++i) {
@@ -322,7 +328,7 @@ var Pomelo = (function (exports, options) {
             _attachContainer(instance);
         };
         return _resolveModules(options.modules, layout).then(function () {
-            return _loadComponents(options.components || []).then(function (components) {
+            return _loadComponents(options.components || [], layout).then(function (components) {
                 var app = Vue.createApp(options || {});
                 for (var i = 0; i < components.length; ++i) {
                     var com = components[i];
@@ -492,13 +498,23 @@ var Pomelo = (function (exports, options) {
         if (folderIndex >= 0) {
             containingFolder = viewName.substr(0, folderIndex);
         }
+
         href = href.replaceAll('@(view)', viewName)
+            .replaceAll('@(js)', viewName + '.js')
+            .replaceAll('@(html)', viewName + '.html')
+            .replaceAll('@(mobileHtml)', viewName + '.m.html')
             .replaceAll('@(css)', viewName + '.css')
+            .replaceAll('@(mobileCss)', viewName + '.m.css')
             .replaceAll('@(less)', viewName + '.less')
-            .replaceAll('@(sass)', viewName + '.sass')
-            .replaceAll('@(scss)', viewName + '.scss')
-            .replaceAll('@(containingFolder)', containingFolder)
-            .replaceAll('@', viewName + '.css');
+            .replaceAll('@(mobileLess)', viewName + '.m.less')
+            .replaceAll('@(mobileSass)', viewName + '.m.sass')
+            .replaceAll('@(mobileScss)', viewName + '.m.scss')
+            .replaceAll('@(containingFolder)', containingFolder);
+
+        if (href.length && href[0] != '/' && href.indexOf('http') == -1) {
+            href = getContainingFolder(viewName) + href;
+        }
+
         return href;
     }
 
@@ -511,6 +527,7 @@ var Pomelo = (function (exports, options) {
             internalAppendCssReference(view, href);
         } else if (typeof style == 'string') {
             var href = parseMacroPath(view, style);
+            href = resolveRelativePath(href, getContainingFolder(view));
             if (_options.version) {
                 if (href.indexOf('>') < 0) {
                     href += '?v=' + _options.version;
@@ -525,9 +542,7 @@ var Pomelo = (function (exports, options) {
                     continue;
                 }
                 var href = parseMacroPath(view, style[i]);
-                if (href == '@') {
-                    href = view + '.css';
-                }
+                href = resolveRelativePath(href, getContainingFolder(view));
                 if (_options.version) {
                     if (href.indexOf('>') < 0) {
                         href += '?v=' + _options.version;
@@ -542,8 +557,17 @@ var Pomelo = (function (exports, options) {
         }
     }
 
+    function getContainingFolder(absolutePath) {
+        var slashIndex = absolutePath.lastIndexOf('/');
+        if (slashIndex < 0) {
+            return '/';
+        }
+
+        return absolutePath.substr(0, slashIndex) + '/';
+    }
+
     function internalAppendCssReference(viewName, href) {
-        if (document.querySelectorAll('link[href="' + href + '"]').length) {
+        if (document.querySelectorAll('link[data-style="' + viewName + '"][href="' + href + '"]').length) {
             return;
         }
 
@@ -646,6 +670,14 @@ var Pomelo = (function (exports, options) {
                 layout = options.layout || layout;
                 modules = options.modules;
             };
+
+            if (PomeloModule) {
+                var require = function (script, workingDirectory, mode) {
+                    workingDirectory = workingDirectory || PomeloModule.getContainingFolder(route.view);
+                    return PomeloModule.require(script, workingDirectory, mode);
+                };
+            }
+
             def = eval(def);
             hookMountedAndUnmounted(_opt, viewName);
             return _resolveModules(modules, viewName);
@@ -725,6 +757,13 @@ var Pomelo = (function (exports, options) {
                         Root(options, '#' + appId, layout);
                     };
 
+                    if (PomeloModule) {
+                        var require = function (script, workingDirectory, mode) {
+                            workingDirectory = workingDirectory || PomeloModule.getContainingFolder(layout);
+                            return PomeloModule.require(script, workingDirectory, mode);
+                        };
+                    }
+
                     eval(js);
                     hookMountedAndUnmounted(_opt, layoutName);
                     return _resolveModules(_opt.modules, layout).then(function () {
@@ -745,6 +784,14 @@ var Pomelo = (function (exports, options) {
                         components = options.components || [];
                         Root(options, '#' + appId, layout);
                     };
+
+                    if (PomeloModule) {
+                        var require = function (script, workingDirectory, mode) {
+                            workingDirectory = workingDirectory || PomeloModule.getContainingFolder(route.view);
+                            return PomeloModule.require(script, workingDirectory, mode);
+                        };
+                    }
+
                     eval(_def);
                     if (!_opt.data) {
                         _opt.data = function () {
@@ -857,6 +904,13 @@ var Pomelo = (function (exports, options) {
     function LoadScript(url) {
         if (_httpCached(url)) {
             with (window) {
+                if (PomeloModule) {
+                    var require = function (script, workingDirectory, mode) {
+                        workingDirectory = workingDirectory || PomeloModule.getContainingFolder(url);
+                        return PomeloModule.require(script, workingDirectory, mode);
+                    };
+                }
+
                 eval(_cache[url]);
             }
             return Promise.resolve();
@@ -864,6 +918,14 @@ var Pomelo = (function (exports, options) {
 
         return _httpGet(url).then(function (js) {
             with (window) {
+
+                if (PomeloModule) {
+                    var require = function (script, workingDirectory, mode) {
+                        workingDirectory = workingDirectory || PomeloModule.getContainingFolder(url);
+                        return PomeloModule.require(script, workingDirectory, mode);
+                    };
+                }
+
                 eval(js);
             }
             _cache[url] = js;
@@ -874,9 +936,53 @@ var Pomelo = (function (exports, options) {
         });
     }
 
-    function _loadComponents(components) {
+    function resolveRelativePathPlain(url) {
+        if (url.indexOf('./') == -1 && url.indexOf('../') == -1) {
+            return url;
+        }
+
+        var index = url.lastIndexOf('../');
+        if (index == 0) {
+            return url;
+        }
+
+        url = url.replaceAll('/./', '/');
+        if (url.indexOf('./') == 0) {
+            url = url.substr(2);
+        }
+
+        if (index) {
+            var w = url.substr(0, index);
+            var f = url.substr(index);
+            return resolveRelativePath(f, w);
+        }
+    }
+
+    function resolveRelativePath(file, workingDirectory) {
+        if (file.length && (file[0] == '/') || file.indexOf('http') == 0) {
+            return resolveRelativePathPlain(file);
+        }
+
+        if (file.length && file[0] != '.') {
+            return resolveRelativePathPlain(workingDirectory + file);
+        }
+
+        if (file.indexOf('./') == 0) {
+            return resolveRelativePath(file.substr(2), workingDirectory);
+        }
+
+        if (file.indexOf('../') == 0) {
+            file = file.substr(3);
+            workingDirectory = getContainingFolder(workingDirectory.substr(0, workingDirectory.length - 1));
+            return resolveRelativePath(file, workingDirectory);
+        }
+    }
+
+    function _loadComponents(components, viewName) {
+        var workingDirectory = getContainingFolder(viewName);
         var ret = [];
         return Promise.all(components.map(function (c) {
+            c = resolveRelativePath(parseMacroPath(viewName, c), workingDirectory);
             var _html;
             var _opt;
             var _name;
@@ -888,6 +994,14 @@ var Pomelo = (function (exports, options) {
                     _opt = options;
                     _name = name;
                 };
+
+                if (PomeloModule) {
+                    var require = function (script, workingDirectory, mode) {
+                        workingDirectory = workingDirectory || PomeloModule.getContainingFolder(c);
+                        return PomeloModule.require(script, workingDirectory, mode);
+                    };
+                }
+
                 eval(comJs);
                 hookMountedAndUnmounted(_opt, c);
                 _opt.template = _html;
