@@ -4,3 +4,7 @@
         return false;
     }
 };
+
+var PueCQOptions = {
+
+};

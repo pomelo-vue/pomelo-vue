@@ -477,14 +477,53 @@ var Pomelo = (function (exports, options) {
         return params;
     }
 
-    function appendCssReference(view) {
+    function appendCssReference(view, style) {
+        if (typeof style == 'boolean') {
+            var href = view + '.css';
+            if (_options.version) {
+                href += '?v=' + _options.version;
+            }
+            internalAppendCssReference(view, href);
+        } else if (typeof style == 'string') {
+            var href = style;
+            if (href == '@') {
+            }
+            if (_options.version) {
+                if (href.indexOf('>') < 0) {
+                    href += '?v=' + _options.version;
+                } else {
+                    href += '&v=' + _options.version;
+                }
+            }
+            internalAppendCssReference(view, href);
+        } else if (style instanceof Array) {
+            for (var i = 0; i < style.length; ++i) {
+                if (typeof style[i] != 'string') {
+                    continue;
+                }
+                var href = style[i];
+                if (href == '@') {
+                    href = view + '.css';
+                }
+                if (_options.version) {
+                    if (href.indexOf('>') < 0) {
+                        href += '?v=' + _options.version;
+                    } else {
+                        href += '&v=' + _options.version;
+                    }
+                }
+                internalAppendCssReference(view, href);
+            }
+        } else {
+            throw 'style type not supported'
+        }
+    }
+
+    function internalAppendCssReference(viewName, href) {
         var link = document.createElement('link');
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        var href = view + '.css';
-        if (_options.version) {
-            href += '?v=' + _options.version;
-        }
+        link.setAttribute('data-style', viewName)
         link.href = href;
         try {
             document.querySelector('head').appendChild(link);
@@ -492,9 +531,11 @@ var Pomelo = (function (exports, options) {
     }
 
     function removeCssReference(view) {
-        var dom = document.querySelector('link[href="' + view + '.css' + (_options.version ? ('?v=' + _options.version) : '' ) + '"]');
-        if (dom) {
-            dom.remove();
+        var dom = document.querySelectorAll('link[data-style="' + view + '"]');
+        if (dom && dom.length) {
+            for (var i = 0; i < dom.length; ++i) {
+                dom[i].remove();
+            }
         }
     }
 
@@ -518,7 +559,7 @@ var Pomelo = (function (exports, options) {
                     _css[view] = 0;
                 }
                 if (_css[view] == 0) {
-                    appendCssReference(view);
+                    appendCssReference(view, options.style);
                 }
                 ++_css[view];
                 return originalMounted.call(this);
@@ -736,7 +777,12 @@ var Pomelo = (function (exports, options) {
                     return null;
                 }
 
-                if (el.getAttribute('static-link') == null && el.tagName.toUpperCase() == "A") {
+                var target = el.getAttribute('target') || '_self';
+                var staticAttribute = el.getAttribute('static-link') || el.getAttribute('v-static') || el.getAttribute('pomelo-static');
+
+                if (staticAttribute == null
+                    && target.toLowerCase() == '_self'
+                    && el.tagName.toLowerCase() == "a") {
                     return el.getAttribute('href');
                 }
 

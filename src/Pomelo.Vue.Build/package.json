@@ -1,6 +1,6 @@
 {
   "name": "pomelo-vue",
-  "version": "1.0.19",
+  "version": "1.0.22",
   "description": "Front-end MVC library",
   "main": "pomelo.vue.js",
   "bin": {

@@ -28,7 +28,7 @@ var PomeloCQ = (function (exports) {
         beforeSend: function (xhr) {
         }
     };
-    _combineObject(window.PueCQOptions || {}, _options);
+    _combineObject(window.CQOptions || {}, _options);
 
     function clone(x) {
         var json = JSON.stringify(x);
