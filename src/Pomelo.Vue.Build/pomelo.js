@@ -247,6 +247,16 @@ var Pomelo = (function (exports, options) {
         return ret;
     }
 
+    function sleep(ms) {
+        return new Promise(function (res) {
+            setTimeout(function () { res(); }, ms);
+        });
+    };
+
+    function yield() {
+        return sleep(0);
+    }
+
     function _attachContainer(instance) {
         if (!instance) {
             console.warn('Invalid view model');
@@ -281,10 +291,30 @@ var Pomelo = (function (exports, options) {
 
                     params = generateParametersFromRoute(params);
                     _parseQueryString(params);
+                    var _result;
+                    var retryLeft = 20;
+                    var buildRetryPromise = function () {
+                        return new Promise(function (res, rej) {
+                            var active = _result.mount(self.selector);
+                            if (active) {
+                                self.active = active;
+                                return Promise.resolve(active);
+                            }
+
+                            if (--retryLeft > 0) {
+                                return sleep(50).then(function () {
+                                    return buildRetryPromise();
+                                }); 
+                            } else {
+                                return Promise.reject('Mount component to ' + self.selector + ' failed');
+                            }
+                        });
+                    };
+
                     return _buildApp(url, params, mobile, currentProxy).then(function (result) {
-                        self.active = result;
-                        self.active = self.active.mount(self.selector);
-                        return Promise.resolve(self.active);
+                        _result = result;
+                        return buildRetryPromise();
+                        return yield();
                     });
                 },
                 close: function (recurse = true) {
