@@ -21,6 +21,10 @@ var PomeloModule = (function (exports) {
     var validModes = ['singleton', 'transient'];
 
     function getContainingFolder(absolutePath) {
+        if (!absolutePath) {
+            console.warn('getContainingFolder: absolutePath is invalid');
+        }
+
         var slashIndex = absolutePath.lastIndexOf('/');
         if (slashIndex < 0) {
             return '/';

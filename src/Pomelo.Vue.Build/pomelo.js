@@ -558,6 +558,10 @@ var Pomelo = (function (exports, options) {
     }
 
     function getContainingFolder(absolutePath) {
+        if (!absolutePath) {
+            console.warn('getContainingFolder: absolutePath is invalid');
+        }
+
         var slashIndex = absolutePath.lastIndexOf('/');
         if (slashIndex < 0) {
             return '/';
@@ -782,7 +786,7 @@ var Pomelo = (function (exports, options) {
                     var PageNext = function (options) {
                         modules = options.modules;
                         components = options.components || [];
-                        Root(options, '#' + appId, layout);
+                        Root(options, '#' + appId, route.view);
                     };
 
                     if (PomeloModule) {
@@ -979,8 +983,11 @@ var Pomelo = (function (exports, options) {
     }
 
     function _loadComponents(components, viewName) {
-        var workingDirectory = getContainingFolder(viewName);
         var ret = [];
+        if (!components.length) {
+            return Promise.resolve(ret);
+        }
+        var workingDirectory = getContainingFolder(viewName || '/');
         return Promise.all(components.map(function (c) {
             c = resolveRelativePath(parseMacroPath(viewName, c), workingDirectory);
             var _html;
