@@ -113,7 +113,8 @@ var PomeloModule = (function (exports) {
                     _workingDirectory = _workingDirectory || getContainingFolder(url);
                     return self.require(script, _workingDirectory, mode);
                 };
-                eval(js);
+                js = js.replaceAll('export default', 'exports.default =');
+                eval(js + '\r\n//# sourceURL=' + url);
                 if (mode == 'singleton') {
                     _singleton[url] = exports;
                 }

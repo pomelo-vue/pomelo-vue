@@ -156,7 +156,7 @@ var Pomelo = (function (exports, options) {
     }
 
     function _buildApp(url, params, mobile, parent) {
-        var componentObject;
+        var componentObject = {};
         return _httpGet(url + '.js')
             .then(function (js) {
                 var Page = function (options) {
@@ -168,9 +168,9 @@ var Pomelo = (function (exports, options) {
                         return PomeloModule.require(script, workingDirectory, mode);
                     };
                 }
-                eval(js);
+                eval(js + '\r\n//# sourceURL=' + url + '.js');
                 hookMountedAndUnmounted(componentObject, url + (mobile ? '.m' : ''));
-                return _resolveModules(componentObject.modules, url).then(function () {
+                return _resolveModules(componentObject.modules || [], url).then(function () {
                     return Promise.resolve(componentObject)
                 });
             })
@@ -655,9 +655,13 @@ var Pomelo = (function (exports, options) {
             options.unmounted = function () { };
         }
 
+        if (!options.created) {
+            options.created = function () { };
+        }
+
         if (options.style) {
-            var originalMounted = options.mounted;
-            options.mounted = function () {
+            var originalCreated = options.created;
+            options.created = function () {
                 if (!_css[view]) {
                     _css[view] = 0;
                 }
@@ -665,6 +669,12 @@ var Pomelo = (function (exports, options) {
                     appendCssReference(view, options.style);
                 }
                 ++_css[view];
+                return originalCreated.call(this);
+            };
+
+            var originalMounted = options.mounted;
+            options.mounted = function () {
+                // placeholder
                 return originalMounted.call(this);
             };
 
@@ -712,7 +722,7 @@ var Pomelo = (function (exports, options) {
                 };
             }
 
-            def = eval(def);
+            def = eval(def + '\r\n//# sourceURL=' + route.view + '.js');
             hookMountedAndUnmounted(_opt, viewName);
             return _resolveModules(modules, viewName);
         }).then(function () {
@@ -798,7 +808,7 @@ var Pomelo = (function (exports, options) {
                         };
                     }
 
-                    eval(js);
+                    eval(js + '\r\n//# sourceURL=' + layout + ".js");
                     hookMountedAndUnmounted(_opt, layoutName);
                     return _resolveModules(_opt.modules, layout).then(function () {
                         LayoutNext(_opt);
@@ -826,7 +836,7 @@ var Pomelo = (function (exports, options) {
                         };
                     }
 
-                    eval(_def);
+                    eval(_def + '\r\n//# sourceURL=' + route.view + '.js');
                     if (!_opt.data) {
                         _opt.data = function () {
                             return {};
@@ -945,7 +955,7 @@ var Pomelo = (function (exports, options) {
                     };
                 }
 
-                eval(_cache[url]);
+                eval(_cache[url] + '\r\n//# sourceURL=' + url);
             }
             return Promise.resolve();
         }
@@ -960,7 +970,7 @@ var Pomelo = (function (exports, options) {
                     };
                 }
 
-                eval(js);
+                eval(js + '\r\n//# sourceURL=' + url);
             }
             _cache[url] = js;
             return Promise.resolve();
@@ -1018,11 +1028,14 @@ var Pomelo = (function (exports, options) {
             return Promise.resolve(ret);
         }
         var workingDirectory = getContainingFolder(viewName || '/');
+        var viewName;
+        var subComponentRefs = [];
         return Promise.all(components.map(function (c) {
             c = resolveRelativePath(parseMacroPath(viewName, c), workingDirectory);
+            viewName = c;
             var _html;
-            var _opt;
             var _name;
+            var _opt;
             return _httpGet(c + ".html").then(function (comHtml) {
                 _html = comHtml;
                 return _httpGet(c + ".js");
@@ -1039,17 +1052,26 @@ var Pomelo = (function (exports, options) {
                     };
                 }
 
-                eval(comJs);
+                eval(comJs + '\r\n//# sourceURL=' + c + ".js");
+                subComponentRefs = _opt.components;
                 hookMountedAndUnmounted(_opt, c);
                 _opt.template = _html;
-                var p = _resolveModules(_opt.modules, c);
-                return p;
+                return _resolveModules(_opt.modules, c);
             }).then(function () {
                 ret.push({ name: _name, options: _opt });
                 return Promise.resolve();
-            })
+            });
         })).then(function () {
-            return ret;
+            return _loadComponents(subComponentRefs || [], viewName);
+        }).then(function (components) {
+            for (var i = 0; i < components.length; ++i) {
+                var current = components[i];
+                if (ret.filter(x => x.name == current.name).length) {
+                    continue;
+                }
+                ret.push(current);
+            }
+            return Promise.resolve(ret);
         });
     }
 
