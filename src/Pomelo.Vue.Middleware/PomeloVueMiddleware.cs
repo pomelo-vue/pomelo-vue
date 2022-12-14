@@ -44,6 +44,10 @@ namespace Pomelo.Vue.Middleware
 
         public List<string> BypassUrlPrefixes { get; set; } = new List<string> { "/api/" };
 
+        public List<string> ProxyUrlPrefixes { get; set; } = new List<string>();
+
+        public bool ProxyAllByDefault { get; set; } = true;
+
         public string WebRootPath { get; set; }
 
         public string AssetsVersion { get; set; }
@@ -89,43 +93,20 @@ namespace Pomelo.Vue.Middleware
                 }
             }
 
-            foreach (var prefix in _options.BypassUrlPrefixes)
+            if (_options.BypassUrlPrefixes.Any(x => httpContext.Request.Path.ToString().StartsWith(x, StringComparison.OrdinalIgnoreCase)))
             {
-                if (httpContext.Request.Path.ToString().StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    await _next(httpContext);
-                    return;
-                }
-            }
-
-            var path = Path.Combine(_options.WebRootPath, httpContext.Request.Path.ToString().Split('?')[0].Trim('/'));
-            if (File.Exists(path + ".html") || File.Exists(path + "/index.html") || File.Exists(path + ".m.html") || File.Exists(path + "/index.m.html") || File.Exists(path + "/main.html"))
-            {
-                httpContext.Response.StatusCode = 200;
-                httpContext.Response.ContentType = "text/html";
-                if (File.Exists(path + ".html") && path.Substring(_options.WebRootPath.Length).Trim('/').IndexOf('/') == -1)
-                {
-                    await httpContext.Response.WriteAsync(File.ReadAllText(path + ".html"));
-                }
-                else if (File.Exists(path + ".m.html") && path.Substring(_options.WebRootPath.Length).Trim('/').IndexOf('/') == -1)
-                {
-                    await httpContext.Response.WriteAsync(File.ReadAllText(path + ".m.html"));
-                }
-                else
-                {
-                    await httpContext.Response.WriteAsync(_main);
-                }
-                await httpContext.Response.CompleteAsync();
-                httpContext.Response.Body.Close();
+                await _next(httpContext);
                 return;
             }
-            else if (string.IsNullOrEmpty(Path.GetExtension(path)))
+
+            if (_options.ProxyAllByDefault || _options.ProxyUrlPrefixes.Any(x => httpContext.Request.Path.ToString().StartsWith(x, StringComparison.OrdinalIgnoreCase)))
             {
                 await httpContext.Response.WriteAsync(_main);
                 await httpContext.Response.CompleteAsync();
                 httpContext.Response.Body.Close();
                 return;
             }
+
             await _next(httpContext);
         }
 

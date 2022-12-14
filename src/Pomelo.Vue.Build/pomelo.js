@@ -837,6 +837,11 @@ var Pomelo = (function (exports, options) {
                     }
 
                     eval(_def + '\r\n//# sourceURL=' + route.view + '.js');
+
+                    if (!_opt) {
+                        _opt = {};
+                    }
+
                     if (!_opt.data) {
                         _opt.data = function () {
                             return {};
