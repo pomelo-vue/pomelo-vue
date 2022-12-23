@@ -20,12 +20,21 @@ var PomeloCQ = (function (exports) {
 
     var _options = {
         isPagedResult(result) {
-            if (result.totalRecords == undefined || result.totalPages === undefined || result.currentPage === undefined || result.pageSize === undefined)
+            if (result.totalRecords == undefined
+                || result.totalPages === undefined
+                || result.currentPage === undefined
+                || result.pageSize === undefined)
                 return false;
             else
                 return true;
         },
         beforeSend: function (xhr) {
+        },
+        onError: function (err) {
+            return Promise.resolve(err);
+        },
+        onSucceeded: function (ret) {
+            return Promise.resolve(ret);
         }
     };
     _combineObject(window.CQOptions || {}, _options);
@@ -132,10 +141,14 @@ var PomeloCQ = (function (exports) {
                 contentType: contentType || 'application/json',
                 data: method == 'GET' ? null : params,
                 success: function (ret) {
-                    resolve(ret);
+                    _options.onSucceeded(ret).then(function (ret) {
+                        resolve(ret);
+                    });
                 },
                 error: function (err) {
-                    reject(err);
+                    return _options.onError(err).then(function (err) {
+                        reject(err);
+                    });
                 },
                 beforeSend: function (xhr) {
                     _options.beforeSend(xhr);
