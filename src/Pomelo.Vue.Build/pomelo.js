@@ -430,7 +430,7 @@ var Pomelo = (function (exports, options) {
             for (var j = 0; j < matches.length; ++j) {
                 var param = matches[j];
                 var k = unwrapBrackets(param.value);
-                regex = '(.*)';
+                regex = '([^/]+)';
                 if (param.value.indexOf(':') > 0) {
                     regex = param.value.substr(param.value.indexOf(':') + 1)
                     regex = regex.substr(0, regex.length - 1);
