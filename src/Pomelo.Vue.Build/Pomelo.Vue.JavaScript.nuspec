@@ -19,6 +19,8 @@
 		<file src="bin\js\pomelo.vue.dev.min.js" target="js" />
 		<file src="bin\js\pomelo.vue.js" target="js" />
 		<file src="bin\js\pomelo.vue.min.js" target="js" />
+		<file src="bin\js\pomelo.localization.js" target="js" />
+		<file src="bin\js\pomelo.localization.min.js" target="js" />
 		<file src="Pomelo.Vue.JavaScript.targets" target="build" />
 	</files>
 </package>

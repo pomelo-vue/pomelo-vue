@@ -13,19 +13,6 @@ namespace Pomelo.Vue.Middleware
     {
         public PomeloVueMiddlewareOptions()
         {
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            try
-            {
-                while (!Directory.Exists(Path.Combine(assemblyPath, "wwwroot")))
-                {
-                    assemblyPath = Path.GetFullPath(Path.Combine(assemblyPath, ".."));
-                }
-                WebRootPath = Path.Combine(assemblyPath, "wwwroot");
-            }
-            catch 
-            {
-                throw new DirectoryNotFoundException("wwwroot");
-            }
         }
 
         public PomeloVueBranch Branch { get; set; } = PomeloVueBranch.ProdMin;
@@ -47,8 +34,6 @@ namespace Pomelo.Vue.Middleware
         public List<string> ProxyUrlPrefixes { get; set; } = new List<string>();
 
         public bool ProxyAllByDefault { get; set; } = true;
-
-        public string WebRootPath { get; set; }
 
         public string AssetsVersion { get; set; }
     }

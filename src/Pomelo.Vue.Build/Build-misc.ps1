@@ -17,3 +17,12 @@ Copy-Item -Path $cjsPath -Destination $cjsPublish
 $min = Join-Path $outputDir 'pomelo.commonjs.min.js'
 uglifyjs $cjsPublish -m -o $min
 Write-Host 'Finished generate pomelo.commonjs.js & pomelo.commonjs.min.js'
+
+Write-Host 'Generating pomelo.localization...'
+$localizationJs = 'pomelo.localization.js'
+$cjsPath = Join-Path $currentFolder $localizationJs
+$cjsPublish = Join-Path $outputDir $localizationJs
+Copy-Item -Path $cjsPath -Destination $cjsPublish
+$min = Join-Path $outputDir 'pomelo.localization.min.js'
+uglifyjs $cjsPublish -m -o $min
+Write-Host 'Finished generate pomelo.localization.js & pomelo.localization.min.js'
