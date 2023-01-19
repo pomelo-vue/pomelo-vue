@@ -11,9 +11,9 @@ app.UsePomeloVueMiddleware(x =>
     x.UseCacheQuery = true;
     x.UseCommonJs = true;
     x.BypassUrlPrefixes = new List<string> { "/api/" };
-    x.MappingPomeloVueJs = true;
-    x.MappingBase = "/assets/js/";
-    x.AssetsVersion = "2022112901";
+    x.MappingPomeloVueJs = false;
+    x.MappingBase = "/assets/js/pomelo-vue/";
+    x.AssetsVersion = "20230112";
 });
 
 app.Run();

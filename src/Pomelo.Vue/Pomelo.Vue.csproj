@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pomelo.Vue.JavaScript" Version="1.0.19" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Pomelo.Vue.Build\Pomelo.Vue.Build.csproj" />
     <ProjectReference Include="..\Pomelo.Vue.Middleware\Pomelo.Vue.Middleware.csproj" />
   </ItemGroup>
 
