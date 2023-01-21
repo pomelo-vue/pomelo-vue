@@ -319,7 +319,6 @@ var Pomelo = (function (exports, options) {
                     return _buildApp(url, params, mobile, currentProxy).then(function (result) {
                         _result = result;
                         return buildRetryPromise();
-                        return yield();
                     });
                 },
                 close: function (recurse = true) {
