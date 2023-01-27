@@ -135,11 +135,21 @@ var PomeloCQ = (function (exports) {
         };
     };
 
+    function parseUrl(url) {
+        if (url.indexOf('//') >= 0) {
+            return url;
+        } else if (_options.baseUrl) {
+            return _options.baseUrl + url
+        } else {
+            return url;
+        }
+    }
+
     function request(endpoint, method, params, dataType, contentType) {
         var self = this;
         return new Promise(function (resolve, reject) {
             _xhrRequest({
-                url: _options.baseUrl ? (_options.baseUrl + endpoint) : endpoint,
+                url: parseUrl(endpoint),
                 type: method,
                 dataType: dataType || 'json',
                 contentType: contentType || 'application/json',

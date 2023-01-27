@@ -426,6 +426,10 @@ var Pomelo = (function (exports, options) {
             }
         }
 
+        function regExpEscape(str) {
+            return str.replace(/[-[\]{}()*+!<=:?.\/\\^$|#\s,]/g, '\\$&');
+        }
+
         var keys = Object.getOwnPropertyNames(_rules);
         for (var i = 0; i < keys.length; ++i) {
             var rule = keys[i];
@@ -436,7 +440,11 @@ var Pomelo = (function (exports, options) {
                 var param = matches[j];
                 var k = unwrapBrackets(param.value);
                 regex = '([^/]+)';
-                if (param.value.indexOf(':') > 0) {
+                if (k.indexOf('=') > 0) {
+                    var value = k.substr(k.indexOf('=') + 1);
+                    regex = `(${regExpEscape(value) })`;
+                    params.push(k.substr(0, k.indexOf('=')));
+                } else if (param.value.indexOf(':') > 0) {
                     regex = param.value.substr(param.value.indexOf(':') + 1)
                     regex = regex.substr(0, regex.length - 1);
                     params.push(k.substr(0, k.indexOf(':')));
