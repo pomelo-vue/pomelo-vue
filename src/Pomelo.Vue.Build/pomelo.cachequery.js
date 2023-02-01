@@ -39,9 +39,31 @@ var PomeloCQ = (function (exports) {
         onSucceeded: function (ret) {
             return Promise.resolve(ret);
         },
-        baseUrl: null
+        baseUrl: null,
+        batch: null,
+        batchInterval: null
     };
     _combineObject(window.CQOptions || {}, _options);
+
+    var _batchRequests = [];
+
+    var cloneArray = function (array) {
+        var ret = [];
+        for (var i = 0; i < array.length; ++i) {
+            ret.push(array[i]);
+        }
+        return ret;
+    }
+
+    if (_options.batch) {
+        setInterval(function () {
+            if (!_batchRequests.length) {
+                return;
+            }
+            _options.batch(_batchRequests, _xhrRequest, _options);
+            _batchRequests = [];
+        }, _options.batchInterval || 50);
+    }
 
     function clone(x) {
         var json = JSON.stringify(x);
@@ -64,6 +86,15 @@ var PomeloCQ = (function (exports) {
     var __cacheExpire = {};
     var __cacheFilters = {};
     var __cacheSubscribe = {};
+
+    function randomString(length, chars = null) {
+        chars = chars || '1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+        var result = '';
+        for (var i = length; i > 0; --i) {
+            result += chars[Math.floor(Math.random() * chars.length)]
+        };
+        return result;
+    }
 
     function SetOptions(options) {
         _combineObject(options, _options);
@@ -146,29 +177,53 @@ var PomeloCQ = (function (exports) {
     }
 
     function request(endpoint, method, params, dataType, contentType) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            _xhrRequest({
-                url: parseUrl(endpoint),
-                type: method,
-                dataType: dataType || 'json',
-                contentType: contentType || 'application/json',
-                data: method == 'GET' ? null : params,
-                success: function (ret) {
-                    _options.onSucceeded(ret).then(function (ret) {
-                        resolve(ret);
-                    });
-                },
-                error: function (err) {
-                    return _options.onError(err).then(function (err) {
-                        reject(err);
-                    });
-                },
-                beforeSend: function (xhr) {
-                    _options.beforeSend(xhr);
-                }
+        dataType = dataType || 'json';
+        contentType = contentType || 'application/json';
+        params = method == 'GET' ? null : params;
+        endpoint = parseUrl(endpoint);
+
+        if (!_options.batch || dataType != 'json' || contentType != 'application/json') {
+            var self = this;
+            return new Promise(function (resolve, reject) {
+                _xhrRequest({
+                    url: endpoint,
+                    type: method,
+                    dataType: dataType,
+                    contentType: contentType || 'application/json',
+                    data: method == 'GET' ? null : params,
+                    success: function (ret) {
+                        _options.onSucceeded(ret).then(function (ret) {
+                            resolve(ret);
+                        });
+                    },
+                    error: function (err) {
+                        return _options.onError(err).then(function (err) {
+                            reject(err);
+                        });
+                    },
+                    beforeSend: function (xhr) {
+                        _options.beforeSend(xhr);
+                    }
+                });
             });
-        });
+        } else {
+            return new Promise(function (res, rej) {
+                _batchRequests.push({
+                    resolve: res,
+                    reject: rej,
+                    request: {
+                        requestId: randomString(32),
+                        url: endpoint,
+                        method: method,
+                        body: params
+                            ? JSON.stringify(params)
+                            : null,
+                        contentType: 'application/json',
+                        timeout: 10
+                    }
+                });
+            });
+        } 
     }
 
     function get(endpoint, params, dataType) {
