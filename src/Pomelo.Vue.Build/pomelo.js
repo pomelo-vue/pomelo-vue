@@ -439,6 +439,10 @@ var Pomelo = (function (exports, options) {
                 var param = matches[j];
                 var k = unwrapBrackets(param.value);
                 regex = '([^/]+)';
+                if (k[0] == '*') {
+                    regex = '(.*)';
+                    k = k.substr(1);
+                }
                 if (k.indexOf('=') > 0) {
                     var value = k.substr(k.indexOf('=') + 1);
                     regex = `(${regExpEscape(value) })`;

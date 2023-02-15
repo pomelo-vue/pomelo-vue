@@ -10,14 +10,14 @@ Write-Host $pomeloPath
 $pomeloContent = Get-Content $pomeloPath -Raw
 
 Write-Host 'Pathcing vue.js...'
-$publicPropertiesMap = '$watch:e=>Fn.bind(e),' + "`r`n"
-$publicPropertiesMap = $publicPropertiesMap + '$containers: i => i.$containers,'
+$publicPropertiesMap = '$watch:e=>$n.bind(e)'
+$publicPropertiesMap = $publicPropertiesMap + ',$containers: i => i.$containers,'
 $publicPropertiesMap = $publicPropertiesMap + '$container: i => i.$container,'
 $publicPropertiesMap = $publicPropertiesMap + '$layout: i => i.$layout,'
 $publicPropertiesMap = $publicPropertiesMap + '$view: i => i.$view'
-$vueJsContent = $vueJsContent.Replace('$parent:e=>_o(e.parent),', '$parent:e=>e.$parent||_o(e.parent),')
-$vueJsContent = $vueJsContent.Replace('$root:e=>_o(e.root),', '$root:e=>e.$root||_o(e.root),')
-$vueJsContent = $vueJsContent.Replace('$watch:e=>Fn.bind(e)', $publicPropertiesMap)
+$vueJsContent = $vueJsContent.Replace('$parent:e=>Co(e.parent),', '$parent:e=>e.$parent||Co(e.parent),')
+$vueJsContent = $vueJsContent.Replace('$root:e=>Co(e.root),', '$root:e=>e.$root||Co(e.root),')
+$vueJsContent = $vueJsContent.Replace('$watch:e=>$n.bind(e)', $publicPropertiesMap)
 $vueJsContent = "// Vue`r`n" + $vueJsContent + "`r`n// Pomelo" + "`r`n" + $pomeloContent
 
 Write-Host 'Generating pomelo.vue...'
