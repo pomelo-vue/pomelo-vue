@@ -148,6 +148,7 @@ var PomeloCQ = (function (exports) {
         if (typeof options.data !== 'string') {
             if (options.contentType.toLocaleLowerCase() == 'application/json') {
                 options.data = JSON.stringify(options.data);
+            } else if (options.contentType.toLocaleLowerCase() == 'application/octet-stream') {
             } else {
                 options.data = _toUrlString(options.data, false);
             }
@@ -223,10 +224,10 @@ var PomeloCQ = (function (exports) {
                     }
                 });
             });
-        } 
+        }
     }
 
-    function get(endpoint, params, dataType) {
+    function get(endpoint, params, dataType, contentType) {
         var names = Object.getOwnPropertyNames(params || {});
         if (names.length) {
             if (endpoint.indexOf('?') >= 0) {
@@ -245,19 +246,19 @@ var PomeloCQ = (function (exports) {
             endpoint = endpoint.substr(0, endpoint.length - 1);
         }
 
-        return request(endpoint, 'GET', params, dataType);
+        return request(endpoint, 'GET', params, dataType, contentType);
     };
 
-    function post(endpoint, params, dataType) {
-        return request(endpoint, 'POST', params, dataType);
+    function post(endpoint, params, dataType, contentType) {
+        return request(endpoint, 'POST', params, dataType, contentType);
     };
 
-    function patch(endpoint, params, dataType) {
-        return request(endpoint, 'PATCH', params, dataType);
+    function patch(endpoint, params, dataType, contentType) {
+        return request(endpoint, 'PATCH', params, dataType, contentType);
     };
 
-    function put(endpoint, params, dataType) {
-        return request(endpoint, 'PUT', params, dataType);
+    function put(endpoint, params, dataType, contentType) {
+        return request(endpoint, 'PUT', params, dataType, contentType);
     };
 
     function _delete(endpoint, params, dataType) {
