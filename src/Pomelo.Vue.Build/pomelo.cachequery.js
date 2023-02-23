@@ -33,10 +33,10 @@ var PomeloCQ = (function (exports) {
         },
         beforeSend: function (xhr) {
         },
-        onError: function (err) {
+        onError: function (err, xhr) {
             return Promise.resolve(err);
         },
-        onSucceeded: function (ret) {
+        onSucceeded: function (ret, xhr) {
             return Promise.resolve(ret);
         },
         baseUrl: null,
@@ -165,6 +165,8 @@ var PomeloCQ = (function (exports) {
                 }
             }
         };
+
+        return xhr;
     };
 
     function parseUrl(url) {
@@ -193,12 +195,12 @@ var PomeloCQ = (function (exports) {
                     contentType: contentType || 'application/json',
                     data: method == 'GET' ? null : params,
                     success: function (ret) {
-                        _options.onSucceeded(ret).then(function (ret) {
+                        _options.onSucceeded(ret, xhr).then(function (ret) {
                             resolve(ret);
                         });
                     },
                     error: function (err) {
-                        return _options.onError(err).then(function (err) {
+                        return _options.onError(err, xhr).then(function (err) {
                             reject(err);
                         });
                     },

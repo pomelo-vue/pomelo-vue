@@ -7,7 +7,7 @@ var Pomelo = (function (exports, options) {
         resolveModulesParallelly: true,
         removeStyleWhenUnmount: false,
         mobile: function () {
-            return window.innerWidth <= 768;
+            return false;
         },
         httpGet: function (url) {
             return fetch(url);
