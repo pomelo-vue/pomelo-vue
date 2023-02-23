@@ -20,6 +20,11 @@ $vueJsContent = $vueJsContent.Replace('$root:e=>Co(e.root),', '$root:e=>e.$root|
 $vueJsContent = $vueJsContent.Replace('$watch:e=>$n.bind(e)', $publicPropertiesMap)
 $vueJsContent = "// Vue`r`n" + $vueJsContent + "`r`n// Pomelo" + "`r`n" + $pomeloContent
 
+If (-Not($vueJsContent.Contains("$layout"))) {
+    Throw 'Merge Vue.js failed!'
+    Exit 1
+}
+
 Write-Host 'Generating pomelo.vue...'
 $outputDir = Join-Path $currentFolder 'bin/js'
 If (-Not (Test-Path $outputDir)) {
