@@ -188,7 +188,7 @@ var PomeloCQ = (function (exports) {
         if (!_options.batch || dataType != 'json' || contentType != 'application/json') {
             var self = this;
             return new Promise(function (resolve, reject) {
-                _xhrRequest({
+                var xhr = _xhrRequest({
                     url: endpoint,
                     type: method,
                     dataType: dataType,
