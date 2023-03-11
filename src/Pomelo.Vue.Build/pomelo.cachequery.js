@@ -470,18 +470,20 @@ var PomeloCQ = (function (exports) {
                     }
                 }
             },
-            subscribe: function (type, id, func) {
-            },
-            unsubscribe: function () {
-            },
             refresh: function () {
                 removeCache(this.__cacheInfo.endpoint, this.__cacheInfo.params);
                 this.fetch(this._fetchFunc);
-            }
+            },
+            dispose: function () {
+                if (this._interval) {
+                    clearInterval(this._interval);
+                }
+            },
+            _interval: null
         };
 
         if (interval) {
-            setInterval(function () {
+            ret._interval = setInterval(function () {
                 ret.refresh();
             }, interval);
         }
