@@ -41,7 +41,8 @@ var PomeloCQ = (function (exports) {
         },
         baseUrl: null,
         batch: null,
-        batchInterval: null
+        batchInterval: null,
+        batchTimeout: 10
     };
     _combineObject(window.CQOptions || {}, _options);
 
@@ -222,7 +223,7 @@ var PomeloCQ = (function (exports) {
                             ? JSON.stringify(params)
                             : null,
                         contentType: 'application/json',
-                        timeout: 10
+                        timeout: _options.batchTimeout
                     }
                 });
             });
