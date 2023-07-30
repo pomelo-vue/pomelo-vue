@@ -1,5 +1,6 @@
 // Copyright (c) Yuko(Yisheng) Zheng. All rights reserved.
 // Licensed under the MIT. See LICENSE in the project root for license information.
+
 var Pomelo = (function (exports, options) {
     // Options
     var _options = {
@@ -435,13 +436,28 @@ var Pomelo = (function (exports, options) {
             return str.replace(/[-[\]{}()*+!<=:?.\/\\^$|#\s,]/g, '\\$&');
         }
 
+        function getRegExpPatterns(str) {
+            var cnt = 0;
+            if (str) {
+                for (var i = 0; i < str.length; ++i) {
+                    if (str[i] == '(') {
+                        ++cnt;
+                    }
+                    if (str[i] == '?' && i > 0 && str[i - 1] == '(') {
+                        --cnt;
+                    }
+                }
+            }
+            return cnt;
+        }
+
         var keys = Object.getOwnPropertyNames(_rules);
         for (var i = 0; i < keys.length; ++i) {
             var rule = keys[i];
             var view = _rules[keys[i]];
             var matches = matchAll(rule);
             var params = [];
-            var replaceValues = [];
+            var patterns = [];
             for (var j = 0; j < matches.length; ++j) {
                 var param = matches[j];
                 var k = unwrapBrackets(param);
@@ -461,23 +477,31 @@ var Pomelo = (function (exports, options) {
                 } else {
                     params.push(k);
                 }
-                replaceValues.push(regex);
+                patterns.push(getRegExpPatterns(regex));
                 rule = _replace(rule, param, regex);
             }
 
             var parsedReg = new RegExp('^' + rule + '$');
-            var matches = parsedReg.exec(window.location.pathname)
+            var matches = parsedReg.exec(window.location.pathname);
             if (matches) {
                 var ret = {
                     view: view,
                     params: []
                 };
-
-                var values = matches.slice(1).map(function (x) { return decodeURIComponent(x); });
-                for (var j = 0; j < Math.min(params.length, values.length); ++j) {
+                var _matches = matches;
+                matches = [];
+                var index = 0;
+                for (var j = 1; j < _matches.length; ++j) {
+                    matches.push(_matches[j]);
+                    for (var k = 0; k < patterns[index] - 1; ++k) {
+                        ++j;
+                    }
+                    ++index;
+                }
+                var values = matches.map(function (x) { return decodeURIComponent(x); });
+                for (var j = 0; j < params.length; ++j) {
                     ret.params.push({ key: params[j], value: values[j] });
                 }
-
                 return ret;
             }
         }
