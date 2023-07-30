@@ -1,6 +1,5 @@
 // Copyright (c) Yuko(Yisheng) Zheng. All rights reserved.
 // Licensed under the MIT. See LICENSE in the project root for license information.
-
 var Pomelo = (function (exports, options) {
     // Options
     var _options = {
@@ -309,7 +308,7 @@ var Pomelo = (function (exports, options) {
                             if (--retryLeft > 0) {
                                 return sleep(50).then(function () {
                                     return buildRetryPromise();
-                                }); 
+                                });
                             } else {
                                 return Promise.reject('Mount component to ' + self.selector + ' failed');
                             }
@@ -400,20 +399,27 @@ var Pomelo = (function (exports, options) {
             return str.replace(new RegExp(s1, "g"), s2);
         };
 
-        function matchAll(src) {
-            var ruleRegex = new RegExp("{((?!/).)*}", "g");
+        function matchAll(str) {
             var ret = [];
-            while (true) {
-                var match = ruleRegex.exec(src);
-                if (match == null) {
-                    break;
-                }
-
-                ret.push({
-                    value: match[0],
-                    groups: match.slice(1)
-                });
+            if (!str) {
+                return ret;
             }
+
+            var currentBrace = -1;
+            var parenthesis = 0;
+            for (var i = 0; i < str.length; ++i) {
+                if (str[i] == '{' && !parenthesis) {
+                    currentBrace = i;
+                    parenthesis = 0;
+                } else if (str[i] == '(') {
+                    ++parenthesis;
+                } else if (str[i] == ')') {
+                    --parenthesis;
+                } else if (str[i] == '}' && !parenthesis) {
+                    ret.push(str.substring(currentBrace, i + 1));
+                }
+            }
+
             return ret;
         }
 
@@ -435,9 +441,10 @@ var Pomelo = (function (exports, options) {
             var view = _rules[keys[i]];
             var matches = matchAll(rule);
             var params = [];
+            var replaceValues = [];
             for (var j = 0; j < matches.length; ++j) {
                 var param = matches[j];
-                var k = unwrapBrackets(param.value);
+                var k = unwrapBrackets(param);
                 regex = '([^/]+)';
                 if (k[0] == '*') {
                     regex = '(.*)';
@@ -445,16 +452,17 @@ var Pomelo = (function (exports, options) {
                 }
                 if (k.indexOf('=') > 0) {
                     var value = k.substr(k.indexOf('=') + 1);
-                    regex = `(${regExpEscape(value) })`;
+                    regex = `(${regExpEscape(value)})`;
                     params.push(k.substr(0, k.indexOf('=')));
-                } else if (param.value.indexOf(':') > 0) {
-                    regex = param.value.substr(param.value.indexOf(':') + 1)
+                } else if (param.indexOf(':') > 0) {
+                    regex = param.substr(param.indexOf(':') + 1)
                     regex = regex.substr(0, regex.length - 1);
                     params.push(k.substr(0, k.indexOf(':')));
                 } else {
                     params.push(k);
                 }
-                rule = _replace(rule, param.value, regex);
+                replaceValues.push(regex);
+                rule = _replace(rule, param, regex);
             }
 
             var parsedReg = new RegExp('^' + rule + '$');
