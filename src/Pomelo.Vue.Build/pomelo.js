@@ -317,8 +317,11 @@ var Pomelo = (function (exports, options) {
                         _parseQueryString(params);
                         if (_options.reuseContainerActiveView() && this.active?.$view == url) {
                             var reuseComponentFunc = function (container) {
-
                                 var p = Promise.resolve();
+                                if (!container || !container.active) {
+                                    return p;
+                                }
+
                                 if (_options.callUnmountedWhenReuseContainerActiveView(url)) {
                                     p = p.then(function () {
                                         var val = container.active.$unmounted();
@@ -354,7 +357,7 @@ var Pomelo = (function (exports, options) {
                                     });
                                 }
 
-                                if (container.active.$containers?.length) {
+                                if (container.active.$containers && container.active.$containers.length) {
                                     for (var i = 0; i < container.active.$containers.length; ++i) {
                                         reuseComponentFunc(container.active.$containers[i]);
                                     }
