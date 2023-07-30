@@ -13,6 +13,9 @@ Write-Host 'Pathcing vue.js...'
 $publicPropertiesMap = '$watch: i => (instanceWatch.bind(i) ),' + "`r`n"
 $publicPropertiesMap = $publicPropertiesMap + '      $containers: i => i.$containers,' + "`r`n"
 $publicPropertiesMap = $publicPropertiesMap + '      $container: i => i.$container,' + "`r`n"
+$publicPropertiesMap = $publicPropertiesMap + '      $created: i => i.$created,' + "`r`n"
+$publicPropertiesMap = $publicPropertiesMap + '      $unmounted: i => i.$unmounted,' + "`r`n"
+$publicPropertiesMap = $publicPropertiesMap + '      $mounted: i => i.$mounted,' + "`r`n"
 $publicPropertiesMap = $publicPropertiesMap + '      $layout: i => i.$layout,' + "`r`n"
 $publicPropertiesMap = $publicPropertiesMap + '      $view: i => i.$view' + "`r`n"
 $vueJsContent = $vueJsContent.Replace('$parent: i => getPublicInstance(i.parent),', '$parent: i => i.$parent || getPublicInstance(i.parent),')

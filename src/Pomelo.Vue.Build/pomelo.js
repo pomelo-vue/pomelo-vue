@@ -21,6 +21,18 @@ var Pomelo = (function (exports, options) {
             } else {
                 return Redirect('/404');
             }
+        },
+        reuseContainerActiveView(viewName) {
+            return true;
+        },
+        callCreatedWhenReuseContainerActiveView(viewName) {
+            return true;
+        },
+        callMountedWhenReuseContainerActiveView(viewName) {
+            return true;
+        },
+        callUnmountedWhenReuseContainerActiveView(viewName) {
+            return true;
         }
     };
 
@@ -205,6 +217,9 @@ var Pomelo = (function (exports, options) {
                     instance.$parent = parent || Pomelo.root();
                     instance.$root = Pomelo.root() || parent;
                     instance.$view = url;
+                    instance.$created = component.created || function () { };
+                    instance.$mounted = component.mounted || function () { };
+                    instance.$unmounted = component.unmounted || function () { };
                     _attachContainer(instance);
                 }
 
@@ -277,67 +292,123 @@ var Pomelo = (function (exports, options) {
 
         var containers = instance.$containers;
         instance.$container = function (el) {
-            var container = {
-                element: document.querySelector(el),
-                selector: el,
-                open: function (url, params) {
-                    var mobile = _options.mobile();
-                    var currentProxy = null;
-                    if (instance.proxy) {
-                        currentProxy = instance.proxy;
-                    }
-                    if (instance.$ && instance.$.proxy) {
-                        currentProxy = instance.$.proxy;
-                    }
-
-                    this.close();
-
-                    var self = this;
-
-                    params = generateParametersFromRoute(params);
-                    _parseQueryString(params);
-                    var _result;
-                    var retryLeft = 20;
-                    var buildRetryPromise = function () {
-                        return new Promise(function (res, rej) {
-                            var active = _result.mount(self.selector);
-                            if (active) {
-                                self.active = active;
-                                return Promise.resolve(active);
-                            }
-
-                            if (--retryLeft > 0) {
-                                return sleep(50).then(function () {
-                                    return buildRetryPromise();
-                                });
-                            } else {
-                                return Promise.reject('Mount component to ' + self.selector + ' failed');
-                            }
-                        });
-                    };
-
-                    return _buildApp(url, params, mobile, currentProxy).then(function (result) {
-                        _result = result;
-                        return buildRetryPromise();
-                    });
-                },
-                close: function (recurse = true) {
-                    function liftClose(container) {
-                        if (container.active && container.active.$) {
-                            if (recurse) {
-                                for (var i = 0; i < container.active.$containers.length; ++i) {
-                                    liftClose(container.active.$containers[i]);
-                                }
-                            }
-                            container.active.$.appContext.app.unmount();
+            var container = containers.filter(x => x.selector == el)[0];
+            if (!container) {
+                container = {
+                    element: document.querySelector(el),
+                    selector: el,
+                    open: function (url, params) {
+                        var mobile = _options.mobile();
+                        var currentProxy = null;
+                        if (instance.proxy) {
+                            currentProxy = instance.proxy;
                         }
-                    }
+                        if (instance.$ && instance.$.proxy) {
+                            currentProxy = instance.$.proxy;
+                        }
 
-                    liftClose(this);
-                },
-                active: null
-            };
-            containers.push(container);
+                        if (!this.active || this.active.$view != url || !_options.reuseContainerActiveView()) {
+                            this.close();
+                        }
+
+                        var self = this;
+
+                        params = generateParametersFromRoute(params);
+                        _parseQueryString(params);
+                        if (_options.reuseContainerActiveView() && this.active?.$view == url) {
+                            var reuseComponentFunc = function (container) {
+
+                                var p = Promise.resolve();
+                                if (_options.callUnmountedWhenReuseContainerActiveView(url)) {
+                                    p = p.then(function () {
+                                        var val = container.active.$unmounted();
+                                        if (val instanceof Promise) {
+                                            return val;
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    });
+                                }
+                                p = p.then(function () {
+                                    _combineObject(params, container.active);
+                                    return Promise.resolve();
+                                });
+                                if (_options.callCreatedWhenReuseContainerActiveView(url)) {
+                                    p = p.then(function () {
+                                        var val = container.active.$created();
+                                        if (val instanceof Promise) {
+                                            return val;
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    });
+                                }
+                                if (_options.callMountedWhenReuseContainerActiveView(url)) {
+                                    p = p.then(function () {
+                                        var val = container.active.$mounted();
+                                        if (val instanceof Promise) {
+                                            return val;
+                                        } else {
+                                            return Promise.resolve();
+                                        }
+                                    });
+                                }
+
+                                if (container.active.$containers?.length) {
+                                    for (var i = 0; i < container.active.$containers.length; ++i) {
+                                        reuseComponentFunc(container.active.$containers[i]);
+                                    }
+                                }
+
+                                return p.then(function () { container.active.$forceUpdate(); return Promise.resolve(container.active) });
+
+                            }
+                            return Promise.resolve(reuseComponentFunc(this));
+                        }
+
+                        var _result;
+                        var retryLeft = 20;
+                        var buildRetryPromise = function () {
+                            return new Promise(function (res, rej) {
+                                var active = _result.mount(self.selector);
+                                if (active) {
+                                    self.active = active;
+                                    return Promise.resolve(active);
+                                }
+
+                                if (--retryLeft > 0) {
+                                    return sleep(50).then(function () {
+                                        return buildRetryPromise();
+                                    });
+                                } else {
+                                    return Promise.reject('Mount component to ' + self.selector + ' failed');
+                                }
+                            });
+                        };
+
+                        return _buildApp(url, params, mobile, currentProxy).then(function (result) {
+                            _result = result;
+                            return buildRetryPromise();
+                        });
+                    },
+                    close: function (recurse = true) {
+                        function liftClose(container) {
+                            if (container.active && container.active.$) {
+                                if (recurse) {
+                                    for (var i = 0; i < container.active.$containers.length; ++i) {
+                                        liftClose(container.active.$containers[i]);
+                                    }
+                                }
+                                container.active.$.appContext.app.unmount();
+                            }
+                        }
+
+                        liftClose(this);
+                    },
+                    active: null
+                };
+                containers.push(container);
+            }
             return container;
         };
     };
