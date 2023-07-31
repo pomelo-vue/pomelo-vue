@@ -322,7 +322,7 @@ var Pomelo = (function (exports, options) {
                                     return p;
                                 }
 
-                                if (_options.callUnmountedWhenReuseContainerActiveView(url)) {
+                                if (_options.callUnmountedWhenReuseContainerActiveView(container.active.$view)) {
                                     p = p.then(function () {
                                         var val = container.active.$unmounted();
                                         if (val instanceof Promise) {
@@ -336,7 +336,7 @@ var Pomelo = (function (exports, options) {
                                     _combineObject(params, container.active);
                                     return Promise.resolve();
                                 });
-                                if (_options.callCreatedWhenReuseContainerActiveView(url)) {
+                                if (_options.callCreatedWhenReuseContainerActiveView(container.active.$view)) {
                                     p = p.then(function () {
                                         var val = container.active.$created();
                                         if (val instanceof Promise) {
@@ -346,7 +346,7 @@ var Pomelo = (function (exports, options) {
                                         }
                                     });
                                 }
-                                if (_options.callMountedWhenReuseContainerActiveView(url)) {
+                                if (_options.callMountedWhenReuseContainerActiveView(container.active.$view)) {
                                     p = p.then(function () {
                                         var val = container.active.$mounted();
                                         if (val instanceof Promise) {
