@@ -33,6 +33,9 @@ var Pomelo = (function (exports, options) {
         },
         callUnmountedWhenReuseContainerActiveView(viewName) {
             return true;
+        },
+        resetDataWhenReuseContainerActiveView(viewName) {
+            return true;
         }
     };
 
@@ -217,6 +220,7 @@ var Pomelo = (function (exports, options) {
                     instance.$parent = parent || Pomelo.root();
                     instance.$root = Pomelo.root() || parent;
                     instance.$view = url;
+                    instance.$data = component.data || function () { return {}; };
                     instance.$created = component.created || function () { };
                     instance.$mounted = component.mounted || function () { };
                     instance.$unmounted = component.unmounted || function () { };
@@ -333,6 +337,10 @@ var Pomelo = (function (exports, options) {
                                     });
                                 }
                                 p = p.then(function () {
+                                    var initData = container.active.$data();
+                                    if (_options.resetDataWhenReuseContainerActiveView()) {
+                                        _combineObject(initData, container.active);
+                                    }
                                     _combineObject(params, container.active);
                                     return Promise.resolve();
                                 });
