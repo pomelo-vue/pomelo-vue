@@ -629,10 +629,9 @@ var Pomelo = (function (exports, options) {
         if (route == null) {
             try {
                 _options.onNotFound(window.location.pathname + window.location.search);
+                return;
             } catch (ex) {
-                console.error(ex);
-                console.error("No available route found.");
-                return Promise.reject("No available route found.");
+                throw "No available route found.";
             }
         }
 
