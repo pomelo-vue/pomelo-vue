@@ -411,6 +411,7 @@ var Pomelo = (function (exports, options) {
                                     }
                                 }
                                 container.active.$.appContext.app.unmount();
+                                container.active = null;
                             }
                         }
 
